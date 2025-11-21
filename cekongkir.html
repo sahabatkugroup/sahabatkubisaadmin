@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kalkulator Ongkir Realtime - Profesional</title>
+
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+
+    <style>
+        /* --- VARIABEL WARNA PROFESIONAL --- */
+        :root {
+            --primary: #00CAFF; /* Biru Terang yang Kuat */
+            --primary-dark: #0b4870;
+            --text-primary: #1F2937;
+            --text-secondary: #6B7280;
+            --card-bg: #ffffff;
+            --border-light: #E5E7EB;
+            --shadow-subtle: 0 4px 10px rgba(0,0,0,0.08);
+            --shadow-strong: 0 10px 25px rgba(0, 202, 255, 0.2);
+            --success: #10B981;
+        }
+
+        /* --- TATA LETAK UTAMA (RESPONSIVE) --- */
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, var(--primary), #00A9E0);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            margin: 0;
+            position: relative; 
+        }
+
+        .container {
+            width: 100%;
+            max-width: 450px;
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: var(--shadow-strong);
+            text-align: center;
+            animation: fadeIn 0.6s ease-in-out;
+            position: relative; 
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h2 {
+            margin-bottom: 25px;
+            color: var(--primary-dark);
+            font-size: 1.6rem;
+            font-weight: 800;
+        }
+
+        /* --- TOMBOL KEMBALI DI POJOK KANAN ATAS --- */
+        .back-to-index {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: rgba(255, 255, 255, 0.9);
+            color: var(--text-secondary);
+            text-decoration: none;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            box-shadow: var(--shadow-subtle);
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            z-index: 20; 
+        }
+
+        .back-to-index:hover {
+            background: var(--card-bg);
+            color: var(--primary);
+            box-shadow: 0 4px 15px rgba(0, 202, 255, 0.3);
+            transform: translateY(-2px); /* Animasi naik sedikit */
+        }
+        
+        .back-to-index svg {
+            margin-right: 5px;
+            width: 14px;
+            height: 14px;
+            transition: transform 0.3s;
+        }
+        
+        .back-to-index:hover svg {
+            transform: translateX(-2px); /* Animasi panah bergeser */
+        }
+
+        /* Media Queries untuk Tombol Kembali (Mobile) */
+        @media (max-width: 480px) {
+            .back-to-index {
+                top: 10px;
+                right: 10px;
+                padding: 6px 10px;
+                font-size: 0.75rem;
+            }
+        }
+
+        /* --- INPUT FIELD DAN FORM (Sisanya sama) --- */
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-align: left;
+        }
+
+        input[type="text"], input[type="number"] {
+            width: 100%;
+            padding: 14px;
+            border-radius: 10px;
+            border: 1px solid var(--border-light);
+            font-size: 1rem;
+            color: var(--text-primary);
+            outline: none;
+            transition: all 0.3s;
+            box-sizing: border-box;
+            margin-bottom: 20px;
+            background-color: #F9FAFB;
+        }
+
+        input[type="text"]:focus, input[type="number"]:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(0, 202, 255, 0.15);
+            background-color: var(--card-bg);
+        }
+        
+        /* --- GAYA SUGGESTION (DROPDOWN) --- */
+        .search-box {
+            position: relative;
+            margin-bottom: 20px;
+        }
+        
+        .dropdown-list {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: var(--card-bg);
+            border: 1px solid var(--border-light);
+            border-radius: 10px;
+            box-shadow: var(--shadow-subtle);
+            max-height: 200px;
+            overflow-y: auto;
+            z-index: 10;
+            display: none;
+            text-align: left;
+            transform-origin: top;
+            animation: dropdownAppear 0.2s ease-out;
+        }
+
+        @keyframes dropdownAppear {
+            from { opacity: 0; transform: scaleY(0.9); }
+            to { opacity: 1; transform: scaleY(1); }
+        }
+
+        .dropdown-list div {
+            padding: 12px 15px;
+            cursor: pointer;
+            font-size: 0.95rem;
+            color: var(--text-primary);
+            border-bottom: 1px solid #F3F4F6;
+            transition: background-color 0.2s;
+        }
+
+        .dropdown-list div:last-child {
+            border-bottom: none;
+        }
+
+        .dropdown-list div:hover {
+            background: #EBF8FF; 
+            color: var(--primary-dark);
+        }
+
+        /* --- MODE SWITCHER (TABS) --- */
+        .mode-switcher {
+            display: flex;
+            justify-content: space-between;
+            background: #F3F4F6;
+            padding: 5px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+        }
+        .mode-switcher input[type="radio"] {
+            display: none;
+        }
+        .mode-switcher label {
+            flex-grow: 1;
+            padding: 10px 0;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            transition: all 0.3s;
+            text-align: center;
+        }
+        .mode-switcher input[type="radio"]:checked + label {
+            background: var(--primary);
+            color: var(--card-bg);
+            box-shadow: 0 2px 5px rgba(0, 202, 255, 0.3);
+        }
+        
+        /* --- HASIL DAN STATUS --- */
+        .result-container {
+            margin-top: 25px;
+            padding: 20px;
+            border-radius: 12px;
+            background: #EBF8FF; 
+            border: 1px solid var(--primary);
+            font-weight: 600;
+            color: var(--text-primary);
+            overflow: hidden;
+        }
+        
+        #hasil-text {
+            color: var(--primary-dark); 
+            font-size: 2.2rem;
+            font-weight: 800;
+            display: block;
+            margin-top: 5px;
+        }
+        
+        /* Animasi Pop-Up */
+        @keyframes pop-up {
+            0% { opacity: 0; transform: scale(0.95) translateY(5px); }
+            100% { opacity: 1; transform: scale(1) translateY(0); }
+        }
+        .animate-result {
+            animation: pop-up 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
+        }
+        
+        .info-status {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            margin-top: 15px;
+            padding: 10px;
+            border-top: 1px dashed var(--border-light);
+            line-height: 1.5;
+        }
+        .loading { color: orange; }
+        .success-status { color: var(--primary-dark); font-weight: 600; }
+    </style>
+</head>
+<body>
+    
+    <a href="index.html" class="back-to-index">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-arrow-left">
+            <line x1="19" y1="12" x2="5" y2="12"></line>
+            <polyline points="12 19 5 12 12 5"></polyline>
+        </svg>
+        Kembali
+    </a>
+
+    <div class="container">
+        <h2>Kalkulator Ongkir</h2>
+
+        <div id="loading-status" class="info-status loading">
+            Menghubungkan ke database...
+        </div>
+        
+        <div class="mode-switcher">
+            <input type="radio" id="modeA" name="mode" value="modeA" checked onclick="switchMode('modeA')">
+            <label for="modeA">Cek Ongkir (Asal-Tujuan)</label>
+            
+            <input type="radio" id="modeB" name="mode" value="modeB" onclick="switchMode('modeB')">
+            <label for="modeB">Hitung Jarak (>12km)</label>
+        </div>
+
+        <div id="inputModeA">
+            <label for="asalA">Kota/Wilayah Asal:</label>
+            <input type="text" id="asalA" list="citiesA" oninput="hitungOngkir()" placeholder="Ketik Kota/Wilayah Asal...">
+            
+            <label for="tujuanA">Kota/Wilayah Tujuan:</label>
+            <input type="text" id="tujuanA" list="citiesA" oninput="hitungOngkir()" placeholder="Ketik Kota/Wilayah Tujuan...">
+            <datalist id="citiesA"></datalist>
+        </div>
+
+        <div id="inputModeB" style="display: none;">
+            
+            <label for="searchTujuanB">Kota/Wilayah Tujuan:</label>
+            <div class="search-box">
+                <input type="text" id="searchTujuanB" oninput="handleInputB(event)" onchange="hitungOngkir()" placeholder="Cari tujuan...">
+                <div class="dropdown-list" id="dropdownB"></div>
+            </div>
+
+            <label for="jarakB">Jarak (km, diisi jika > 12 km):</label>
+            <input type="number" id="jarakB" min="0" oninput="hitungOngkir()" placeholder="Jarak dalam kilometer (misal: 13)">
+        </div>
+        
+        <div class="result-container">
+            Perkiraan Biaya Pengiriman:
+            <span id="hasil-text">Rp 0</span>
+        </div>
+        
+        <div id="formula-info" class="info-status">
+            Pilih mode perhitungan di atas.
+        </div>
+    </div>
+
+    <script>
+        // ------------------------------------------------------------------
+        // 1. KONFIGURASI FIREBASE ANDA
+        // ------------------------------------------------------------------
+        const firebaseConfig = {
+          apiKey: "AIzaSyCtva8TeL40-WotK4kFL_vL8uUXL3GDfww",
+          authDomain: "sahabatkuu-bisa.firebaseapp.com",
+          databaseURL: "https://sahabatkuu-bisa-default-rtdb.asia-southeast1.firebasedatabase.app",
+          projectId: "sahabatkuu-bisa",
+          storageBucket: "sahabatkuu-bisa.firebasestorage.app",
+          messagingSenderId: "315555564115",
+          appId: "1:315555564115:web:56f46dbceb8c154589d4a6",
+          measurementId: "G-PFGYL96VPS"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+        
+        let realTimeOngkir = {}; 
+        const DISKON = 6000;
+        let selectedTujuanB = null; 
+
+        // Elemen DOM
+        const loadingStatus = document.getElementById('loading-status');
+        const hasilText = document.getElementById("hasil-text");
+        const formulaInfo = document.getElementById("formula-info");
+        const searchInputB = document.getElementById("searchTujuanB");
+        const dropdownB = document.getElementById("dropdownB");
+        const jarakInputB = document.getElementById("jarakB");
+
+        // Formatter Rupiah
+        const formatRupiah = (angka) => `Rp ${Math.max(0, angka).toLocaleString('id-ID')}`;
+        
+        // Helper untuk animasi
+        function animateResult(ongkir) {
+            hasilText.classList.remove('animate-result');
+            void hasilText.offsetWidth; // Force reflow
+            hasilText.innerHTML = formatRupiah(ongkir);
+            hasilText.classList.add('animate-result');
+        }
+
+        // ------------------------------------------------------------------
+        // 2. FUNGSI PENGAMBIL DATA DARI FIREBASE
+        // ------------------------------------------------------------------
+        function fetchOngkirData() {
+            loadingStatus.textContent = 'Menghubungkan ke database...';
+
+            database.ref('daftar_ongkir').once('value')
+                .then((snapshot) => {
+                    if (snapshot.exists()) {
+                        let fetchedData = {};
+                        snapshot.forEach((childSnapshot) => {
+                            const item = childSnapshot.val();
+                            if (item.wilayah && typeof item.ongkir === 'number') {
+                                fetchedData[item.wilayah.toUpperCase()] = item.ongkir; 
+                            }
+                        });
+
+                        realTimeOngkir = fetchedData;
+                        populateCitiesA(); 
+                        hitungOngkir();
+                        
+                        loadingStatus.textContent = 'Data tarif berhasil dimuat.';
+                        loadingStatus.classList.remove('loading');
+                        loadingStatus.classList.add('success-status');
+
+                    } else {
+                        loadingStatus.textContent = 'Error: Data ongkir (/daftar_ongkir) tidak ditemukan.';
+                        loadingStatus.style.color = 'red';
+                    }
+                })
+                .catch((error) => {
+                    console.error("Firebase fetch error:", error);
+                    loadingStatus.textContent = `Error koneksi: ${error.message}`;
+                    loadingStatus.style.color = 'red';
+                });
+        }
+        
+        // ------------------------------------------------------------------
+        // 3. FUNGSI UTILITY (Mode A: Datalist)
+        // ------------------------------------------------------------------
+        function populateCitiesA() {
+            const datalist = document.getElementById('citiesA');
+            datalist.innerHTML = ''; 
+            const cities = Object.keys(realTimeOngkir).filter(key => key !== ''); 
+            cities.forEach(city => {
+                const option = document.createElement('option');
+                option.value = city; 
+                datalist.appendChild(option);
+            });
+        }
+        
+        // ------------------------------------------------------------------
+        // 4. FUNGSI MODE SWITCHER
+        // ------------------------------------------------------------------
+        function switchMode(mode) {
+            document.getElementById('inputModeA').style.display = (mode === 'modeA' ? 'block' : 'none');
+            document.getElementById('inputModeB').style.display = (mode === 'modeB' ? 'block' : 'none');
+            // Reset hasil saat ganti mode
+            animateResult(0);
+            formulaInfo.innerHTML = 'Silakan masukkan data perhitungan.';
+            hitungOngkir();
+        }
+
+        // ------------------------------------------------------------------
+        // 5. LOGIKA PENCARIAN & PERHITUNGAN KHUSUS MODE B
+        // ------------------------------------------------------------------
+        function handleInputB(event) {
+            const val = event.target.value.toUpperCase();
+            dropdownB.innerHTML = "";
+            
+            if (val.length < 2 || Object.keys(realTimeOngkir).length === 0) { 
+                dropdownB.style.display = "none";
+                hitungOngkir(); 
+                return;
+            }
+            
+            const cityArray = Object.keys(realTimeOngkir).map(wilayah => ({
+                lokasi: wilayah,
+                ongkir: realTimeOngkir[wilayah]
+            }));
+            const filtered = cityArray.filter(item => item.lokasi.includes(val));
+            
+            if (filtered.length > 0) {
+                dropdownB.style.display = "block";
+                filtered.forEach(item => {
+                    const div = document.createElement("div");
+                    div.textContent = item.lokasi;
+                    div.onclick = () => {
+                        searchInputB.value = item.lokasi;
+                        selectedTujuanB = item; 
+                        dropdownB.style.display = "none";
+                        hitungOngkir();
+                    };
+                    dropdownB.appendChild(div);
+                });
+            } else {
+                dropdownB.style.display = "none";
+            }
+        }
+        
+        searchInputB.addEventListener("input", handleInputB);
+
+        // Sembunyikan dropdown saat klik di luar area
+        document.addEventListener('click', (e) => {
+            if (!dropdownB.contains(e.target) && e.target !== searchInputB) {
+                dropdownB.style.display = 'none';
+            }
+        });
+
+
+        // ------------------------------------------------------------------
+        // 6. FUNGSI PERHITUNGAN UTAMA (Main Handler)
+        // ------------------------------------------------------------------
+        function hitungOngkir() {
+            const currentMode = document.querySelector('input[name="mode"]:checked').value;
+            let finalOngkir = 0;
+            let infoText = '';
+
+            if (currentMode === 'modeA') {
+                ({ ongkir: finalOngkir, infoText: infoText } = calculateModeA());
+            } else { // modeB
+                ({ ongkir: finalOngkir, infoText: infoText } = calculateModeB());
+            }
+
+            animateResult(finalOngkir);
+            formulaInfo.innerHTML = infoText;
+        }
+
+        // ------------------------------------------------------------------
+        // 7. CALCULATION LOGIC A (Asal & Tujuan)
+        // ------------------------------------------------------------------
+        function calculateModeA() {
+            const asal = document.getElementById('asalA').value.toUpperCase();
+            const tujuan = document.getElementById('tujuanA').value.toUpperCase();
+            let ongkir = 0;
+            let info = 'Pilih Kota Asal dan/atau Kota Tujuan.';
+
+            const ongkirAsal = realTimeOngkir[asal] || 0;
+            const ongkirTujuan = realTimeOngkir[tujuan] || 0;
+
+            if (asal && tujuan) {
+                if (asal === tujuan) {
+                    ongkir = ongkirAsal;
+                    info = `**${asal}** -> **${tujuan}**: Harga dasar **${formatRupiah(ongkirAsal)}** diterapkan (karena kota sama).`;
+                } else {
+                    ongkir = ongkirAsal + ongkirTujuan - DISKON;
+                    info = `Rumus: **${formatRupiah(ongkirAsal)}** (Asal) + **${formatRupiah(ongkirTujuan)}** (Tujuan) - **${formatRupiah(DISKON)}** (Diskon).`;
+                }
+            } else if (asal || tujuan) {
+                ongkir = ongkirAsal || ongkirTujuan;
+                const kotaDipilih = asal || tujuan;
+                const hargaDipilih = ongkirAsal || ongkirTujuan;
+                info = `Hanya **${kotaDipilih}** yang diisi. Biaya dasarnya: **${formatRupiah(hargaDipilih)}**.`;
+            }
+            
+            if (ongkir < 0) {
+                 ongkir = 0;
+                 info += ' (Hasil negatif dibulatkan menjadi Rp 0)';
+            }
+
+            return { ongkir, infoText: info };
+        }
+        
+        // ------------------------------------------------------------------
+        // 8. CALCULATION LOGIC B (Jarak > 12km)
+        // ------------------------------------------------------------------
+        function calculateModeB() {
+            const jarak = parseFloat(jarakInputB.value);
+            let ongkir = 0;
+            let info = 'Pilih tujuan dan masukkan jarak.';
+
+            // Pastikan selectedTujuanB up-to-date
+            const lokasiKey = searchInputB.value.toUpperCase();
+            if (realTimeOngkir[lokasiKey] !== undefined) {
+                selectedTujuanB = { lokasi: lokasiKey, ongkir: realTimeOngkir[lokasiKey] };
+            } else if (searchInputB.value.trim() !== "") {
+                 selectedTujuanB = null; // Reset jika input tidak valid
+            }
+
+            if (selectedTujuanB) {
+                let baseOngkir = selectedTujuanB.ongkir;
+                ongkir = baseOngkir;
+                info = `Harga dasar **${selectedTujuanB.lokasi}**: ${formatRupiah(baseOngkir)}.`;
+                
+                if (!isNaN(jarak) && jarak > 12) {
+                    // RUMUS KHUSUS JARAK: 6000 + ((Jarak - 5) * 2000) + 6000
+                    const jarakHitung = Math.max(0, jarak - 5); 
+                    let ongkirExtra = 6000 + (jarakHitung * 2000) + 6000;
+                    
+                    ongkir += ongkirExtra;
+                    
+                    info = `**${selectedTujuanB.lokasi} (Jarak ${jarak} km)**: Dasar ${formatRupiah(baseOngkir)} + Tambahan Jarak ${formatRupiah(ongkirExtra)}.`;
+
+                } else if (!isNaN(jarak) && jarak > 0 && jarak <= 12) {
+                    info += ` Jarak ${jarak} km termasuk dalam harga dasar.`;
+                }
+            } else if (searchInputB.value.trim() !== "") {
+                info = 'Lokasi tujuan tidak ditemukan dalam database.';
+            } else {
+                 info = 'Masukkan Kota/Wilayah Tujuan.';
+            }
+
+            return { ongkir, infoText: info };
+        }
+
+        // ------------------------------------------------------------------
+        // 9. INISIALISASI
+        // ------------------------------------------------------------------
+        window.onload = function() {
+            fetchOngkirData(); 
+            // Inisialisasi mode default saat halaman dimuat
+            switchMode('modeA'); 
+        };
+    </script>
+</body>
+</html>
