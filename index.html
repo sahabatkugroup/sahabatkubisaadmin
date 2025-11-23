@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1" />
   <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
-  <title>Sahabatku Delivery — Admin Panel</title>
+  <title>Sahabatku Admin Panel</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -506,58 +506,79 @@
         border-color: #dc3545;
         color: white;
     }    
-    /* Styling Scrollbar (Opsional: Agar scrollbar terlihat modern/minimalis) */
+    /* Scrollbar Modern */
     nav.tab::-webkit-scrollbar {
-      width: 6px;
+      width: 4px;
     }
     nav.tab::-webkit-scrollbar-thumb {
-      background: rgba(0, 0, 0, 0.15);
+      background: rgba(0, 0, 0, 0.12);
       border-radius: 10px;
     }
     
+    /* Floating Menu Toggle (Lebih kecil & elegan untuk HP) */
     .menu-toggle-btn {
       position: fixed;
-      top: 20px; 
-      left: 30px; 
+      top: 14px;
+      left: 16px;
       background: var(--primary);
       color: white;
-      padding: 10px 15px;
+      padding: 8px 12px;
       border: none;
-      border-radius: 10px;
+      border-radius: 12px;
       font-weight: 600;
+      font-size: 14px;
       cursor: pointer;
       z-index: 1001;
-      box-shadow: 0 4px 15px var(--shadow-light);
-      transition: background 0.3s ease, box-shadow 0.3s ease;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.15);
+      transition: 0.25s ease;
     }
     
-    .menu-toggle-btn:hover {
-      background: var(--primary-dark);
+    .menu-toggle-btn:active {
+      transform: scale(0.95);
     }
     
-    /* Gaya Tombol dalam Dropdown */
+    /* Dropdown Container */
+    nav.tab {
+      padding: 8px;
+      border-radius: 14px;
+      background: #ffffff;
+      box-shadow: 0 4px 18px rgba(0,0,0,0.08);
+      max-height: 80vh;
+      overflow-y: auto;
+    }
+    
+    /* Tombol dalam dropdown (lebih compact & modern di HP) */
     nav.tab button {
       width: 100%;
       text-align: left;
-      padding: 10px 15px;
-      border-radius: 8px;
+      padding: 12px 15px;
+      border-radius: 12px;
       background: none;
       border: none;
-      margin: 2px 0;
+      margin: 4px 0;
       color: var(--text-primary);
-      transition: background 0.2s;
+      font-size: 14px;
+      font-weight: 500;
+      transition: background 0.2s, transform 0.15s;
     }
     
+    /* Efek hover */
     nav.tab button:hover:not(.active) {
-      background: #f0f4f9; /* Latar belakang saat di-hover */
+      background: #f4f6fc;
     }
     
+    /* Efek tekan */
+    nav.tab button:active {
+      transform: scale(0.98);
+    }
+    
+    /* Active tab keren */
     nav.tab button.active {
-      background: linear-gradient(90deg, var(--primary), var(--primary-light));
+      background: linear-gradient(95deg, var(--primary), var(--primary-light));
       color: white;
-      box-shadow: none;
+      box-shadow: 0 3px 12px rgba(0,0,0,0.08);
     }
-    
+
     /* Pastikan konten utama diberi margin agar tidak tertutup tombol toggle */
     .adminPanel {
         padding-top: 80px; /* Tambah ruang di atas agar tombol toggle aman */
@@ -886,7 +907,43 @@
     /* Ikon SVG di dalam Tombol AKTIF harus berwarna putih */
     nav.tab button.active .nav-icon {
         stroke: white; 
-    }    
+    } 
+    /* --- Gaya Khusus Filter KPI --- */
+    .filter-controls {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        flex-wrap: wrap;
+    }
+    .filter-controls label {
+        margin-bottom: 0;
+    }
+    
+    /* --- Gaya Penghargaan Khusus (Untuk visualisasi Kurir Terbaik) --- */
+    .card[style*="border: 2px solid var(--success)"] {
+        /* Gaya untuk Kurir Paling Aktif (Hijau) */
+        border: 2px solid var(--success); 
+        background: #e6ffe6;
+        transition: transform 0.3s ease;
+    }
+    .card[style*="border: 2px solid #ff9f43"] {
+        /* Gaya untuk Kurir TRX Mitra Terbanyak (Oranye) */
+        border: 2px solid var(--warning); 
+        background: #fff5e6;
+        transition: transform 0.3s ease;
+    }
+    .card[style*="border: 2px solid var(--primary)"] {
+        /* Gaya untuk Kurir Terbaik Keseluruhan (Biru) */
+        border: 2px solid var(--primary); 
+        background: #e6f7ff;
+        transition: transform 0.3s ease;
+    }
+    
+    /* Penyesuaian Badge Rating */
+    .status-published {
+        background-color: rgba(0, 119, 200, 0.2);
+        color: var(--primary);
+    }
   </style>
 </head>
 <body>
@@ -937,6 +994,10 @@
                       <svg viewBox="0 0 24 24" class="nav-icon"><circle cx="12" cy="7" r="4"/><path d="M10 17v3H4v-3c0-2 2-3 4-3h4c2 0 4 1 4 3v3h-6"/></svg>
                       Kurir
                   </button>
+                <button data-tab="kpiKurirTab"> 
+                      <svg viewBox="0 0 24 24" class="nav-icon"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+                      KPI Kurir
+                  </button>
                 <button data-tab="notaTab">
                       <svg viewBox="0 0 24 24" class="nav-icon"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M8 15h8M8 11h8"/></svg>
                       Nota
@@ -960,10 +1021,6 @@
                 <button onclick="window.location.href='absensi-kurir-sahabatku.html'">
                       <svg viewBox="0 0 24 24" class="nav-icon"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2zM12 10v4M15 12h-6"/></svg>
                       Absensi Kurir
-                  </button>
-                <button onclick="window.location.href='adminsfood.html'">
-                      <svg viewBox="0 0 24 24" class="nav-icon"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-2-1.39h-1v-3c0-.55-.45-1-1-1h-1V7h2c1.1 0 2-.9 2-2V4.56c2.3.82 4 3.09 4 5.66 0 2.22-.88 4.23-2.32 5.67l-1.68 1.68z"/></svg>
-                      Sahabatku Food Admin
                   </button>
                 <button data-tab="settingsTab">
                       <svg viewBox="0 0 24 24" class="nav-icon"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V22a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 20.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H2a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V2a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V12h.09a1.65 1.65 0 0 0 1.51 1z"/></svg>
@@ -1037,7 +1094,88 @@
         </table>
       </div>
     </div>
-
+    <div id="kpiKurirTab" class="tabContent hidden">
+        <h3>KPI & Analisis Kinerja Kurir</h3>
+        
+        <div class="card" style="margin-bottom: 20px;">
+            <h4>Filter Data Analisis</h4>
+            <div class="filter-controls">
+                <div>
+                    <label for="kpiMonthFilter">Periode Bulan</label>
+                    <input type="month" id="kpiMonthFilter" style="width: 300px;">
+                </div>
+                <div>
+                    <label for="kpiDateFilter">Periode Hari (Opsional)</label>
+                    <input type="date" id="kpiDateFilter" style="width: 300px;">
+                </div>
+                <div style="align-self: end;">
+                    <button id="btnGenerateKpi" class="btn btn-primary mini-btn">Tampilkan Data</button>
+                </div>
+            </div>
+        </div>
+        <div class="card" style="margin-bottom: 20px;">
+            <div class="card-body">
+                <p><strong>Rekomendasi Admin:</strong></p>
+                <p id="kpiSuggestionBox">Memuat saran...</p>
+            </div>
+        </div>
+    
+        <h4 style="margin-bottom: 10px;">🏆 Penghargaan Kurir</h4>
+        <div class="grid-3" style="margin-bottom: 20px;">
+            <div class="card" style="border: 2px solid var(--success); background: #e6ffe6;">
+                <p class="small">Kurir Paling Aktif (Bulan Ini)</p>
+                <h3 id="kpiMostActiveMonthly" style="color: var(--success); margin-bottom: 0;">-</h3>
+            </div>
+            <div class="card" style="border: 2px solid #ff9f43; background: #fff5e6;">
+                <p class="small">Kurir TRX Mitra Terbanyak (Bulan Ini)</p>
+                <h3 id="kpiBestTrxMonthly" style="color: #ff9f43; margin-bottom: 0;">-</h3>
+            </div>
+            <div class="card" style="border: 2px solid var(--primary); background: #e6f7ff;">
+                <p class="small">Kurir Terbaik (Skor Gabungan Bulan Ini)</p>
+                <h3 id="kpiBestOverallMonthly" style="color: var(--primary); margin-bottom: 0;">-</h3>
+            </div>
+        </div>
+        
+        <h4 style="margin-top: 25px; margin-bottom: 10px;">🏅 Top 5 Kurir Berdasarkan Kategori</h4>
+        <div class="grid-4" style="margin-bottom: 20px;">
+            <div class="card">
+                <p class="small">Top 5 Total Nota (Bulan)</p>
+                <ol id="top5NotaMonthly" style="padding-left: 20px; margin-top: 10px;"><li>Tidak Ada Data</li></ol>
+            </div>
+            <div class="card">
+                <p class="small">Top 5 Penghasilan (Bulan)</p>
+                <ol id="top5IncomeMonthly" style="padding-left: 20px; margin-top: 10px;"><li>Tidak Ada Data</li></ol>
+            </div>
+            <div class="card">
+                <p class="small">Top 5 Total Nota (Hari)</p>
+                <ol id="top5NotaDaily" style="padding-left: 20px; margin-top: 10px;"><li>Pilih tanggal untuk melihat harian.</li></ol>
+            </div>
+            <div class="card">
+                <p class="small">Top 5 Penghasilan (Hari)</p>
+                <ol id="top5IncomeDaily" style="padding-left: 20px; margin-top: 10px;"><li>Pilih tanggal untuk melihat harian.</li></ol>
+            </div>
+        </div>
+    
+        <div class="card">
+            <h4>Detail Peringkat Semua Kurir (Bulan Ini)</h4>
+            <p class="small" style="margin-bottom: 15px;">Peringkat dihitung dari skor gabungan: Total Nota (40%), Penghasilan (40%), dan TRX Mitra (20%). Rating <span class="status-badge status-active">Aktif > 80</span>, <span class="status-badge status-published">Normal 60-80</span>, <span class="status-badge status-inactive">Kurang < 60</span>.</p>
+            <table class="admin-table" aria-label="Detail Peringkat Kurir">
+                <thead>
+                    <tr>
+                        <th>Peringkat</th>
+                        <th>Kurir</th>
+                        <th>Rating (1-100)</th>
+                        <th>TRX Mitra (Bulan)</th>
+                        <th>Total Nota (Bulan)</th>
+                        <th>Total Penghasilan (Bulan)</th>
+                        <th>Konsistensi</th>                         <th>Kerajinan</th>                       </tr>
+                </thead>
+                <tbody id="kpiKurirDetailList">
+                    <tr><td colspan="6" class="small" style="text-align: center;">Silakan pilih bulan dan klik 'Tampilkan Data'</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
     <div id="notaTab" class="tabContent hidden">
       <h3>Semua Nota System</h3>
       <div class="card">
@@ -1563,6 +1701,7 @@
       
       if (id === 'dashboardTab') loadDashboard();
       if (id === 'kurirTab') loadKurirData();
+      if (id === 'kpiKurirTab') {initKpiKurirTab();}
       if (id === 'notaTab') {
           loadKurirOptions();
           // Tentukan tanggal hari ini untuk dijadikan filter default
@@ -2807,6 +2946,688 @@
             alert('Gagal menghapus testimoni. Silakan coba lagi.');
         }
     };
+    // ==========================================================
+    // C. LOGIKA KPI KURIR UTAMA (LENGKAP DAN TERBARU - AI CERDAS V3.0)
+    // ==========================================================
+    
+    /**
+     * Fungsi inisialisasi untuk Tab KPI Kurir.
+     */
+    function initKpiKurirTab() {
+        // Asumsi fungsi el() dan getTodayDate() sudah terdefinisi secara global.
+        const now = new Date();
+        // Pastikan ID elemen ini sesuai di HTML: kpiMonthFilter, kpiDateFilter, btnGenerateKpi
+        if (typeof el === 'function' && el('kpiMonthFilter')) {
+            el('kpiMonthFilter').value = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+            el('kpiDateFilter').value = getTodayDate(); 
+            
+            el('btnGenerateKpi').onclick = generateKpiReport;
+            
+            generateKpiReport();
+        } else {
+            console.error("Kesalahan: Fungsi el() atau elemen filter KPI tidak ditemukan.");
+        }
+    }
+    
+    /**
+     * Menghitung hari sebelum tanggal tertentu.
+     * @param {string} dateString - Format YYYY-MM-DD
+     * @returns {string} Tanggal sehari sebelumnya.
+     */
+    function getPreviousDay(dateString, daysAgo = 1) {
+        const date = new Date(dateString);
+        // Set jam agar tidak terjadi masalah timezone
+        date.setHours(12, 0, 0, 0); 
+        date.setDate(date.getDate() - daysAgo);
+        return date.toISOString().slice(0, 10);
+    }
+    
+    /**
+     * Menghitung skor konsistensi (0-1) berdasarkan sebaran aktivitas harian.
+     */
+    function calculateConsistencyScore(dailyData) {
+        const activityCounts = Object.values(dailyData);
+        if (activityCounts.length < 2) return activityCounts.length > 0 ? 1 : 0; 
+        
+        // 1. Hitung Standar Deviasi (STD DEV)
+        const mean = activityCounts.reduce((sum, count) => sum + count, 0) / activityCounts.length;
+        const variance = activityCounts.reduce((sum, count) => sum + Math.pow(count - mean, 2), 0) / activityCounts.length;
+        const stdDev = Math.sqrt(variance);
+    
+        // 2. Normalisasi STD DEV
+        const maxReasonableDev = 20; 
+        const normalizedInconsistency = Math.min(1, stdDev / maxReasonableDev);
+    
+        return 1 - normalizedInconsistency; 
+    }
+    
+    /**
+     * Menghitung skor Kerajinan/Diligence (0-1), disesuaikan dengan tanggal bergabung kurir.
+     */
+    function calculateDiligenceScore(activeDays, joiningDate, selectedMonth, selectedDate) {
+        const activeDaysCount = activeDays.size;
+    
+        const [year, month] = selectedMonth.split('-').map(Number);
+        const startOfMonth = new Date(year, month - 1, 1);
+        const joinDate = new Date(joiningDate);
+        // Tanggal awal perhitungan: yang terbesar antara tgl bergabung dan tgl 1 bulan ini
+        let startDate = joinDate > startOfMonth ? joinDate : startOfMonth;
+        let endDate = new Date(selectedDate); 
+    
+        // Reset waktu untuk perbandingan tanggal yang akurat
+        endDate.setHours(0, 0, 0, 0);
+        startDate.setHours(0, 0, 0, 0);
+    
+        let totalPotentialDays = 0;
+        let currentDate = new Date(startDate.getTime()); 
+    
+        // Hitung Hari Potensial
+        while (currentDate <= endDate) {
+            // Cek apakah hari ini bukan hari Minggu/libur (jika perlu diabaikan, tambahkan logika di sini)
+            totalPotentialDays++;
+            currentDate.setDate(currentDate.getDate() + 1);
+            currentDate.setHours(0, 0, 0, 0); 
+        }
+    
+        if (totalPotentialDays === 0) return activeDaysCount > 0 ? 1 : 0; 
+    
+        return Math.min(1, activeDaysCount / totalPotentialDays); 
+    }
+    
+    /**
+     * Fungsi utama untuk menghasilkan Laporan KPI Kurir.
+     */
+    async function generateKpiReport() {
+        // Asumsi fungsi el(), get(), ref(), db, formatRp(), dan calculatePendapatanNota() sudah terdefinisi.
+        const selectedMonth = el('kpiMonthFilter').value; 
+        const selectedDate = el('kpiDateFilter').value; 
+        
+        if (!selectedMonth) return alert('Pilih periode bulan terlebih dahulu.');
+    
+        el('kpiKurirDetailList').innerHTML = '<tr><td colspan="8" style="text-align: center; color: var(--text-secondary); padding: 20px;">Memuat data...</td></tr>';
+        if (el('kpiSuggestionBox')) el('kpiSuggestionBox').innerHTML = 'Memuat saran...'; 
+    
+        try {
+            const [notaSnap, kurirSnap, trxLogSnap] = await Promise.all([
+                get(ref(db, 'nota')),
+                get(ref(db, 'kurir')),
+                get(ref(db, 'mitra_trx_log')) 
+            ]);
+            
+            if (!kurirSnap.exists()) {
+                el('kpiKurirDetailList').innerHTML = '<tr><td colspan="8" class="small" style="text-align: center;">Tidak ada data kurir terdaftar.</td></tr>';
+                if (el('kpiSuggestionBox')) el('kpiSuggestionBox').innerHTML = 'Tidak ada kurir terdaftar di database.';
+                return;
+            }
+    
+            const kurirData = kurirSnap.val();
+            const kurirUsernames = Object.keys(kurirData).filter(u => kurirData[u].enabled); 
+            
+            const results = {};
+            const dailyNotaDataAll = {}; 
+            
+            kurirUsernames.forEach(username => {
+                results[username] = {
+                    name: kurirData[username].username,
+                    joiningDate: kurirData[username].joiningDate || '2024-01-01', 
+                    monthlyNotaCount: 0,
+                    monthlyIncome: 0,
+                    monthlyTrxMitra: 0,
+                    dailyNotaCount: 0,
+                    dailyIncome: 0,
+                    dailyActivityDays: new Set(),
+                    dailyNotaData: {},      
+                    dailyTrxMitraData: {},  
+                    lateNotaCount: 0,       
+                    lateNotaRatio: 0,       
+                    consistencyScore: 0,    
+                    diligenceScore: 0,      
+                    totalScore: 0, 
+                    rank: 0,
+                    rating: 0,
+                    yesterdayNotaCount: 0, 
+                };
+                dailyNotaDataAll[username] = {}; 
+            });
+            
+            // 2. Process Data (Mengumpulkan data harian dan bulanan)
+            if (notaSnap.exists()) {
+                const notaData = notaSnap.val();
+                Object.keys(notaData).forEach(kurirUsername => {
+                    if (kurirUsernames.includes(kurirUsername)) {
+                        Object.values(notaData[kurirUsername]).forEach(nota => {
+                            const createdAt = nota.createdAt; 
+                            if (!createdAt) return;
+                            
+                            const notaDate = createdAt.slice(0, 10);
+                            const notaMonth = createdAt.slice(0, 7);
+                            // Pastikan calculatePendapatanNota ada atau definisikan
+                            const income = typeof calculatePendapatanNota === 'function' ? calculatePendapatanNota(nota) : 0; 
+                            
+                            const timePart = createdAt.split('T')[1];
+                            const hour = timePart ? parseInt(timePart.split(':')[0]) : 0; 
+                            const isLateInput = hour >= 20; 
+                            
+                            // Kumpulkan data bulanan
+                            if (notaMonth === selectedMonth) {
+                                results[kurirUsername].monthlyNotaCount++;
+                                results[kurirUsername].monthlyIncome += income;
+                                results[kurirUsername].dailyActivityDays.add(notaDate); 
+                                results[kurirUsername].dailyNotaData[notaDate] = (results[kurirUsername].dailyNotaData[notaDate] || 0) + 1;
+                                
+                                if (isLateInput) {
+                                    results[kurirUsername].lateNotaCount++;
+                                }
+                            }
+                            
+                            // Kumpulkan data harian global (untuk perbandingan)
+                            dailyNotaDataAll[kurirUsername][notaDate] = (dailyNotaDataAll[kurirUsername][notaDate] || 0) + 1;
+    
+                            // Metrics Harian untuk selectedDate
+                            if (selectedDate && notaDate === selectedDate) {
+                                results[kurirUsername].dailyNotaCount++;
+                                results[kurirUsername].dailyIncome += income;
+                            }
+                        });
+                    }
+                });
+            }
+    
+            // 3. Process TRX Mitra Data
+            if (trxLogSnap.exists()) {
+                Object.values(trxLogSnap.val()).forEach(log => {
+                    if (!log.timestamp || !log.kurirId) return;
+                    
+                    const logDate = new Date(log.timestamp);
+                    if (isNaN(logDate.getTime())) return; 
+                    
+                    const logMonth = logDate.toISOString().slice(0, 7); 
+                    const logFullDate = logDate.toISOString().slice(0, 10); 
+                    const trxCount = log.trxInput || 1; 
+                    
+                    if (logMonth === selectedMonth && kurirUsernames.includes(log.kurirId)) {
+                        results[log.kurirId].monthlyTrxMitra += trxCount;
+                        results[log.kurirId].dailyTrxMitraData[logFullDate] = (results[log.kurirId].dailyTrxMitraData[logFullDate] || 0) + trxCount;
+                    }
+                });
+            }
+            
+            // 4. Calculate Scores, Ranking, and Yesterday's Data
+            const kurirMetrics = Object.values(results);
+            
+            const maxNota = Math.max(1, ...kurirMetrics.map(k => k.monthlyNotaCount));
+            const maxIncome = Math.max(1, ...kurirMetrics.map(k => k.monthlyIncome));
+            const maxTrx = Math.max(1, ...kurirMetrics.map(k => k.monthlyTrxMitra));
+    
+            const yesterdayDateStr = getPreviousDay(selectedDate, 1);
+            
+            kurirMetrics.forEach(k => {
+                const notaConsistency = calculateConsistencyScore(k.dailyNotaData);
+                const trxConsistency = calculateConsistencyScore(k.dailyTrxMitraData);
+                
+                k.consistencyScore = (notaConsistency + trxConsistency) / 2; 
+                k.diligenceScore = calculateDiligenceScore(k.dailyActivityDays, k.joiningDate, selectedMonth, selectedDate); 
+                k.lateNotaRatio = k.monthlyNotaCount > 0 ? k.lateNotaCount / k.monthlyNotaCount : 0; 
+                
+                // Set yesterday's nota count
+                k.yesterdayNotaCount = dailyNotaDataAll[k.name][yesterdayDateStr] || 0;
+                
+                const normalizedNota = k.monthlyNotaCount / maxNota;
+                const normalizedIncome = k.monthlyIncome / maxIncome;
+                const normalizedTrx = k.monthlyTrxMitra / maxTrx;
+                
+                // Bobot: Nota (30%), Income (30%), TRX Mitra (15%), Konsistensi (15%), Kerajinan (10%)
+                k.totalScore = (
+                    (normalizedNota * 30) + 
+                    (normalizedIncome * 30) + 
+                    (normalizedTrx * 15) + 
+                    (k.consistencyScore * 15) + 
+                    (k.diligenceScore * 10)     
+                );
+                
+                k.rating = parseFloat(k.totalScore.toFixed(2));
+            });
+            
+            // Urutkan dan Set Rank
+            kurirMetrics.sort((a, b) => b.totalScore - a.totalScore);
+            kurirMetrics.forEach((k, index) => { k.rank = index + 1; });
+    
+    
+            // 5. IDENTIFIKASI KURIR TERBAIK UNTUK DISPLAY DI ATAS LAPORAN (SAFE CHECK)
+            let topPerformerHtml = '';
+            const availableMetrics = kurirMetrics.filter(k => k.name && k.monthlyIncome > 0); // Filter kurir yang punya data
+    
+            if (availableMetrics.length > 0) {
+                const bestCourier = availableMetrics[0]; // Kurir terbaik berdasarkan total score/rating
+                
+                // Mencari Top Performers dengan default value jika array hanya berisi satu/kosong
+                const defaultKurir = { name: 'Belum Ada', monthlyTrxMitra: 0, diligenceScore: 0 };
+                
+                const mostTrxCourier = availableMetrics.reduce((prev, current) => {
+                    return (prev.monthlyTrxMitra >= current.monthlyTrxMitra) ? prev : current;
+                }, defaultKurir);
+    
+                const mostActiveCourier = availableMetrics.reduce((prev, current) => {
+                    return (prev.diligenceScore >= current.diligenceScore) ? prev : current;
+                }, defaultKurir);
+                
+                // Pastikan data yang ditampilkan valid
+                const activeName = mostActiveCourier.name;
+                const trxName = mostTrxCourier.name;
+                
+                topPerformerHtml = `
+                    <div style="background-color: #e6f7ff; border: 1px solid #b3e0ff; padding: 15px; margin-bottom: 20px; border-radius: 8px;">
+                        <h4 style="color: #0077b6; margin-top: 0; font-weight: 700; border-bottom: 2px solid #b3e0ff; padding-bottom: 8px;">🌟 TOP 3 SUPERSTAR KURIR BULAN INI!</h4>
+                        <ul style="list-style-type: none; padding-left: 0; margin: 0;">
+                            <li style="margin-bottom: 8px;">
+                                <span style="font-weight: 600; color: #c0392b;">🏆 KURIR TERBAIK (Rating Total):</span> 
+                                <span style="font-weight: 700;">${bestCourier.name}</span> (${bestCourier.rating} Poin)
+                            </li>
+                            <li style="margin-bottom: 8px;">
+                                <span style="font-weight: 600; color: #e67e22;">🤝 TRX MITRA TERBANYAK:</span> 
+                                <span style="font-weight: 700;">${trxName}</span> (${mostTrxCourier.monthlyTrxMitra} TRX)
+                            </li>
+                            <li>
+                                <span style="font-weight: 600; color: #27ae60;">⚡ KURIR PALING AKTIF (Diligence):</span> 
+                                <span style="font-weight: 700;">${activeName}</span> (${Math.round(mostActiveCourier.diligenceScore * 100)}% Keaktifan)
+                            </li>
+                        </ul>
+                    </div>
+                `;
+            } else if (kurirUsernames.length > 0) {
+                 topPerformerHtml = `
+                    <div style="background-color: #fff3e6; border: 1px solid #ffd9b3; padding: 15px; margin-bottom: 20px; border-radius: 8px;">
+                        <h4 style="color: #e67e22; margin-top: 0; font-weight: 700;">⚠️ DATA MINIMAL!</h4>
+                        <p style="margin: 0;">Belum ada Kurir yang mencatat nota/trx mitra bulan ini. Top Performer akan muncul setelah data terisi.</p>
+                    </div>
+                `;
+            }
+              // === TOP 5 PERINGKAT — BULANAN ===
+            const top5NotaMonthlyArr = [...kurirMetrics]
+                .sort((a, b) => b.monthlyNotaCount - a.monthlyNotaCount)
+                .slice(0, 5);
+            
+            const top5IncomeMonthlyArr = [...kurirMetrics]
+                .sort((a, b) => b.monthlyIncome - a.monthlyIncome)
+                .slice(0, 5);
+            
+            // === TOP 5 PERINGKAT — HARI INI ===
+            const top5NotaDailyArr = [...kurirMetrics]
+                .sort((a, b) => b.dailyNotaCount - a.dailyNotaCount)
+                .slice(0, 5);
+            
+            const top5IncomeDailyArr = [...kurirMetrics]
+                .sort((a, b) => b.dailyIncome - a.dailyIncome)
+                .slice(0, 5);
+            
+            // === RENDER LIST KE HTML ===
+            function renderList(id, arr, getValue) {
+                const elList = el(id);
+                if (!elList) return;
+                if (arr.length === 0) {
+                    elList.innerHTML = '<li>Tidak Ada Data</li>';
+                    return;
+                }
+                elList.innerHTML = arr.map(k => 
+                    `<li><strong>${k.name}</strong> — ${getValue(k)}</li>`
+                ).join('');
+            }
+            
+            renderList('top5NotaMonthly', top5NotaMonthlyArr, k => `${k.monthlyNotaCount} nota`);
+            renderList('top5IncomeMonthly', top5IncomeMonthlyArr, k => formatRp(k.monthlyIncome));
+            renderList('top5NotaDaily', top5NotaDailyArr, k => `${k.dailyNotaCount} nota`);
+            renderList('top5IncomeDaily', top5IncomeDailyArr, k => formatRp(k.dailyIncome));
+            
+            // === PENGHARGAAN KURIR (BULAN INI) ===
+            const mostActive = [...kurirMetrics].sort((a,b)=>b.diligenceScore - a.diligenceScore)[0];
+            const bestTrx = [...kurirMetrics].sort((a,b)=>b.monthlyTrxMitra - a.monthlyTrxMitra)[0];
+            const bestOverall = [...kurirMetrics].sort((a,b)=>b.rating - a.rating)[0];
+            
+            // === PENGHARGAAN KURIR (BULAN INI) — DENGAN NILAI LENGKAP ===
+            if (mostActive) {
+                el('kpiMostActiveMonthly').innerHTML =
+                    `${mostActive.name}<br><small>${Math.round(mostActive.diligenceScore * 100)}% Keaktifan</small>`;
+            } else {
+                el('kpiMostActiveMonthly').textContent = '-';
+            }
+            
+            if (bestTrx) {
+                el('kpiBestTrxMonthly').innerHTML =
+                    `${bestTrx.name}<br><small>${bestTrx.monthlyTrxMitra} TRX Mitra</small>`;
+            } else {
+                el('kpiBestTrxMonthly').textContent = '-';
+            }
+            
+            if (bestOverall) {
+                el('kpiBestOverallMonthly').innerHTML =
+                    `${bestOverall.name}<br><small>Rating ${bestOverall.rating} Poin</small>`;
+            } else {
+                el('kpiBestOverallMonthly').textContent = '-';
+            }
+
+    
+            // ==========================================================
+            // FITUR ANALISIS AI CERDAS V3.0 (PALING KOMPREHENSIF)
+            // ==========================================================
+            
+            const analysisReport = {}; 
+            
+            const todayDateStr = selectedDate;
+            const yesterdayDateStrFinal = getPreviousDay(selectedDate, 1);
+            
+            // Definisi Gaya untuk HTML Inline
+            const dangerStyle = 'color: #c0392b; font-weight: 700;'; // Merah Tua
+            const successStyle = 'color: #27ae60; font-weight: 700;'; // Hijau Kuat
+            const warningStyle = 'color: #e67e22; font-weight: 700;'; // Oranye
+            const infoStyle = 'color: #3498db; font-weight: 700;'; // Biru
+    
+            // Struktur Model AI
+            const findingModel = (style, title, finding, adminAction, courierAdvice) => ({
+                style, title, finding, adminAction, courierAdvice
+            });
+    
+            // 1. Lakukan Analisis Mendalam untuk Setiap Kurir
+            kurirMetrics.forEach(k => {
+                analysisReport[k.name] = {
+                    critical: [], 
+                    warning: [],  
+                    info: [],     
+                    appreciation: [], 
+                    status: infoStyle 
+                };
+    
+                const A = analysisReport[k.name];
+                const trxConsist = calculateConsistencyScore(k.dailyTrxMitraData);
+                const activityRate = Math.round(k.diligenceScore * 100);
+    
+                // Cek Daily TRX
+                const todayTrx = k.dailyTrxMitraData[todayDateStr] || 0;
+                const yesterdayTrx = k.dailyTrxMitraData[yesterdayDateStrFinal] || 0;
+                const wasActiveToday = k.dailyActivityDays.has(todayDateStr);
+                const wasActiveYesterday = k.dailyActivityDays.has(yesterdayDateStrFinal);
+    
+                // Cek Daily Performance (Nota)
+                const notaChange = k.dailyNotaCount - k.yesterdayNotaCount;
+                const notaChangePercent = k.yesterdayNotaCount > 0 ? (notaChange / k.yesterdayNotaCount) * 100 : 
+                                        (k.dailyNotaCount > 0 ? 100 : 0);
+    
+                // ==============================================
+                // KATEGORI A: KRITIS & DISIPLIN TINGGI (MERAH)
+                // ==============================================
+    
+                // 1. Kritis TRX 2 Hari Berturut-turut
+                if (wasActiveToday && wasActiveYesterday && todayTrx === 0 && yesterdayTrx === 0) {
+                     A.critical.push(findingModel(
+                        dangerStyle, 
+                        '🚨 ERROR KRITIS: Input TRX HILANG 2 HARI!',
+                        `Sistem mendeteksi TIDAK ADA input TRX Mitra pada <span style="${dangerStyle}">${yesterdayDateStrFinal} dan ${todayDateStr}</span>. Ini melanggar Prosedur Disiplin Kategori A.`,
+                        `TINDAKAN ADMIN: PRIORITAS! Hubungi Kurir SEGERA, konfirmasi status, dan minta input data yang terlewat. Ini adalah masalah disiplin fatal.`,
+                        `SARAN KURIR: DISIPLIN HARIAN. Wajibkan diri input TRX Mitra (minimal 1) segera setelah memulai hari kerja. Jangan pernah tunda hingga esok hari.`
+                    ));
+                    A.status = dangerStyle;
+                }
+    
+                // 2. Konsistensi TRX Bulanan Jauh di Bawah Standar
+                if (k.monthlyTrxMitra > 0 && trxConsist < 0.45 && A.status !== dangerStyle) {
+                    A.critical.push(findingModel(
+                        dangerStyle, 
+                        'Konsistensi Input TRX Bulanan SANGAT BURUK.',
+                        `Skor konsistensi input TRX Mitra bulanan hanya ${Math.round(trxConsist * 100)}%. Pola input sangat tidak teratur dan tidak dapat diandalkan.`,
+                        `TINDAKAN ADMIN: Lakukan *coaching* real-time input. Ini adalah masalah kebiasaan harian yang harus segera diubah karena sangat memengaruhi rating total.`,
+                        `SARAN KURIR: FOKUS KONSISTENSI. Jaga konsistensi input TRX setidaknya 80% dari hari aktif Anda.`
+                    ));
+                    A.status = dangerStyle;
+                }
+    
+                // 3. Rating Total Jauh di Bawah Standar (Pelanggaran Kinerja Fatal)
+                if (k.rating < 60 && A.status !== dangerStyle) {
+                    A.critical.push(findingModel(
+                        dangerStyle, 
+                        'Rating Kinerja Total JATUH di bawah 60.',
+                        `Rating komprehensif Anda hanya ${k.rating}. Kurir gagal memenuhi standar minimal pada hampir semua aspek (Volume, Income, Disiplin).`,
+                        `TINDAKAN ADMIN: Memerlukan perhatian serius. Lakukan sesi evaluasi kinerja resmi. Susun Rencana Perbaikan Kinerja (PIP) 30 hari.`,
+                        `SARAN KURIR: MOTIVASI. Fokus tingkatkan jumlah nota per hari minimal 20% dan pastikan semua input disiplin.`
+                    ));
+                    A.status = dangerStyle;
+                }
+    
+                // ==============================================
+                // KATEGORI B: PERINGATAN & POTENSI (ORANYE)
+                // ==============================================
+    
+                // 4. Peringatan TRX 1 Hari (Jika tidak ada masalah 2 hari)
+                // Hanya berlaku jika KURIR AKTIF HARI INI
+                if (wasActiveToday && todayTrx === 0 && A.critical.length === 0) {
+                     A.warning.push(findingModel(
+                        warningStyle, 
+                        '⚠️ PERINGATAN: Belum Input TRX Mitra Hari Ini.',
+                        `Kurir belum mencatat TRX Mitra untuk tanggal ${todayDateStr}. Kemungkinan lupa/menunda input.`,
+                        `TINDAKAN ADMIN: Berikan peringatan ringan agar Kurir segera input TRX sebelum hari berganti. Ini adalah indikator disiplin.`,
+                        `SARAN KURIR: DISIPLIN WAKTU. Setel pengingat di HP Anda untuk input sebelum jam 1 siang. Jangan sampai terlambat.`
+                    ));
+                    if (A.status !== dangerStyle) A.status = warningStyle;
+                }
+                
+                // 5. Input Nota Larut Malam (Penumpukan Data)
+                if (k.lateNotaRatio > 0.20 && A.critical.length === 0) {
+                    A.warning.push(findingModel(
+                        warningStyle, 
+                        'Disiplin Waktu Input Nota Rendah (Penumpukan Data).',
+                        `${Math.round(k.lateNotaRatio * 100)}% nota diinput setelah jam 20:00 (Larut Malam).`,
+                        `TINDAKAN ADMIN: Jelaskan pada Kurir bahwa input ditumpuk akan memengaruhi integritas data. Disiplinkan untuk input saat transaksi selesai.`,
+                        `SARAN KURIR: REAL-TIME. Masukkan data nota SEGERA setelah pengiriman selesai. Input yang ditumpuk meningkatkan risiko *human error*.`
+                    ));
+                    if (A.status !== dangerStyle) A.status = warningStyle;
+                }
+    
+                // ==============================================
+                // KATEGORI C: ANALISIS COMPARATIVE & DILIGENCE (BIRU/HIJAU)
+                // ==============================================
+    
+                // 6. Analisis Produktivitas Harian (Jika hari ini lebih rendah dari kemarin)
+                if (k.dailyNotaCount < k.yesterdayNotaCount && notaChangePercent < -20) { 
+                    A.info.push(findingModel(
+                        infoStyle, 
+                        '💡 PENURUNAN PRODUKTIVITAS HARI INI.',
+                        `Jumlah Nota hari ini (${k.dailyNotaCount}) <span style="${infoStyle}">TURUN DRATIS ${Math.abs(Math.round(notaChangePercent))}%</span> dibandingkan kemarin (${k.yesterdayNotaCount}).`,
+                        `TINDAKAN ADMIN: Cek area kerja Kurir hari ini. Apakah ada kendala operasional? Tawarkan bantuan atau *support*.`,
+                        `SARAN KURIR: ANALISIS DIRI. Analisis: Apa yang berbeda dari pekerjaan Anda kemarin? Fokus pada efisiensi rute hari ini untuk mengembalikan performa.`
+                    ));
+                    if (A.status !== dangerStyle && A.status !== warningStyle) A.status = infoStyle;
+                } else if (k.dailyNotaCount > k.yesterdayNotaCount && notaChangePercent > 20 && k.dailyNotaCount > 0) {
+                     A.info.push(findingModel(
+                        successStyle, // Menggunakan sukses style karena ini kabar baik
+                        '🚀 LONJAKAN PRODUKTIVITAS HARI INI!',
+                        `Jumlah Nota hari ini (${k.dailyNotaCount}) <span style="${successStyle}">MENINGKAT TAJAM ${Math.abs(Math.round(notaChangePercent))}%</span> dibandingkan kemarin (${k.yesterdayNotaCount}). Kinerja Luar Biasa!`,
+                        `TINDAKAN ADMIN: Kirimkan pesan apresiasi atas peningkatan yang signifikan. Motivasi Kurir untuk menjadikan hari ini sebagai standar baru.`,
+                        `SARAN KURIR: BELAJAR DARI DIRI SENDIRI. Catat strategi dan rute yang Anda gunakan hari ini, lalu terapkan secara konsisten.`
+                    ));
+                    // Status tidak diubah menjadi success karena ini hanya harian, bukan bulanan
+                }
+                
+                // 7. Kerajinan/Keaktifan Rendah
+                if (k.diligenceScore < 0.4 && k.monthlyIncome > 0 && A.critical.length === 0) { 
+                    A.info.push(findingModel(
+                        infoStyle, 
+                        'Skor Keaktifan (Diligence) Rendah.',
+                        `Rasio Hari Aktif Anda ${activityRate}%. Ini rendah dibandingkan potensi hari kerja Kurir sejak tanggal bergabung.`,
+                        `TINDAKAN ADMIN: Pastikan Kurir mengerti pentingnya mencatat semua hari kerja. Cek apakah ada mis-data tanggal bergabung.`,
+                        `SARAN KURIR: PRIORITASKAN. Setiap hari kerja harus dicatat. Setiap hari aktif berkontribusi positif pada skor Kerajinan Anda.`
+                    ));
+                    if (A.status !== dangerStyle && A.status !== warningStyle) A.status = infoStyle;
+                }
+    
+                // ==============================================
+                // KATEGORI D: APRESIASI SUPERIOR (HIJAU)
+                // ==============================================
+                
+                // 8. Apresiasi Puncak (Rating >= 90, No Critical Issues)
+                if (k.rating >= 90 && A.critical.length === 0) {
+                     A.appreciation.push(findingModel(
+                        successStyle, 
+                        '⭐ ROLE MODEL: PERFORMA SUPERIOR & DISIPLIN SEMPURNA!',
+                        `Rating Anda mencapai ${k.rating} (Rank #${k.rank}). Kurir ini menunjukkan disiplin, volume, dan pendapatan yang konsisten. Anda adalah ROLE MODEL tim.`,
+                        `TINDAKAN ADMIN: Berikan bonus/reward khusus sebagai bentuk Apresiasi Puncak. Jadikan Kurir ini mentor bagi Kurir baru.`,
+                        `SARAN KURIR: JAGA KUALITAS. Kinerja Anda sangat diandalkan. Pertahankan konsistensi harian Anda.`
+                    ));
+                    // Set status to success only if no warnings exist
+                    if (A.warning.length === 0) A.status = successStyle;
+                } 
+                // 9. Apresiasi Kinerja Tinggi (Rating >= 85, No Critical Issues)
+                else if (k.rating >= 85 && A.critical.length === 0) {
+                     A.appreciation.push(findingModel(
+                        successStyle, 
+                        '🏆 KINERJA TINGGI & DIATAS EKSPEKTASI!',
+                        `Rating Anda ${k.rating} (Rank #${k.rank}). Pencatatan nota rapi, konsistensi tinggi, dan volume kerja sangat memuaskan.`,
+                        `TINDAKAN ADMIN: Berikan pujian terbuka di grup tim. Dorong dia untuk mencapai Rating 90+.`,
+                        `SARAN KURIR: TINGKATKAN NILAI. Coba tingkatkan rata-rata nilai per nota atau cari peluang di area baru untuk memaksimalkan Pendapatan.`
+                    ));
+                    if (A.warning.length === 0 && A.status !== dangerStyle) A.status = successStyle;
+                }
+                // 10. Apresiasi Kerja Keras (Effort Recognition, Rating >= 75)
+                else if (k.rating >= 75 && A.critical.length === 0 && (k.diligenceScore >= 0.85 || k.consistencyScore >= 0.9)) {
+                     A.appreciation.push(findingModel(
+                        successStyle, 
+                        '💯 APRESIASI KERJA KERAS & KONSISTENSI!',
+                        `Rating Anda ${k.rating}. Walaupun volume belum maksimal, Skor Kerajinan (${activityRate}%) dan/atau Konsistensi Input Anda SANGAT TINGGI.`,
+                        `TINDAKAN ADMIN: Akui dedikasinya. Fokuskan coaching pada peningkatan volume nota/pendapatan, bukan lagi disiplin input.`,
+                        `SARAN KURIR: JANGAN KENDUR. Disiplin Anda sudah sempurna. Sekarang fokuskan energi untuk memperluas area atau meningkatkan efisiensi rute.`
+                    ));
+                    if (A.warning.length === 0 && A.status !== dangerStyle) A.status = successStyle;
+                }
+    
+            });
+    
+            // 2. Susun Laporan Akhir (HTML)
+            let suggestionHtml = '';
+            let issueFound = false;
+    
+            
+            // --- ADD: HTML untuk Top Performers (TopPerformerHtml) ---
+            suggestionHtml += topPerformerHtml;
+            // --- END: HTML for Top Performers ---
+    
+    
+            // Fungsi untuk menghasilkan HTML detail yang rapi
+            const generateDetailHtml = (courierName, findings) => {
+                let html = '';
+                findings.forEach(f => {
+                    html += `
+                        <li style="margin-bottom: 15px; border-left: 5px solid ${f.style.split(';')[0].split(':')[1].trim()}; padding-left: 10px; background-color: #f7f9fc; border-radius: 4px; padding: 10px;">
+                            <p style="margin: 0;"><span style="${f.style}">${f.title}</span> <span style="font-weight: 500;">(${courierName})</span></p>
+                            <small style="display: block; margin-left: 5px; margin-top: 5px; color: var(--text-secondary);">
+                                <span style="font-weight: 600; color: #444;">&#10007; Masalahnya Kenapa:</span> ${f.finding}
+                                <br> <span style="font-weight: 600; color: #444;">&#9888; Tindakan Admin:</span> <span style="font-style: italic;">${f.adminAction}</span>
+                                <br> <span style="font-weight: 600; color: #444;">&#10148; Saran Kurir:</span> ${f.courierAdvice}
+                            </small>
+                        </li>
+                    `;
+                });
+                return html;
+            };
+    
+            // Kategori: Kritis (Merah)
+            let criticalHtml = '';
+            Object.keys(analysisReport).forEach(name => {
+                if (analysisReport[name].critical.length > 0) {
+                    issueFound = true;
+                    criticalHtml += generateDetailHtml(name, analysisReport[name].critical);
+                }
+            });
+    
+            // Kategori: Peringatan (Oranye)
+            let warningHtml = '';
+            Object.keys(analysisReport).forEach(name => {
+                // Hanya tampilkan warning jika KURIR TIDAK termasuk dalam kategori apresiasi
+                if (analysisReport[name].warning.length > 0 && analysisReport[name].appreciation.length === 0) {
+                    issueFound = true;
+                    warningHtml += generateDetailHtml(name, analysisReport[name].warning);
+                }
+            });
+            
+            // Kategori: Info/Comparative (Biru)
+            let infoHtml = '';
+            Object.keys(analysisReport).forEach(name => {
+                // Tampilkan info jika tidak ada masalah kritis/warning/apresiasi yang lebih tinggi
+                if (analysisReport[name].info.length > 0 && analysisReport[name].critical.length === 0 && analysisReport[name].warning.length === 0 && analysisReport[name].appreciation.length === 0) {
+                    issueFound = true;
+                    infoHtml += generateDetailHtml(name, analysisReport[name].info);
+                }
+            });
+    
+            // Kategori: Apresiasi (Hijau)
+            let successHtml = '';
+            Object.keys(analysisReport).forEach(name => {
+                if (analysisReport[name].appreciation.length > 0) {
+                    successHtml += generateDetailHtml(name, analysisReport[name].appreciation);
+                }
+            });
+    
+    
+            // Gabungkan Laporan Akhir
+            
+            suggestionHtml += `<p style="font-weight: 600; font-size: 1.1em;">Laporan Analisis AI Cerdas V3.0 (Data per ${todayDateStr}):</p>`;
+            suggestionHtml += `<ul style="list-style-type: none; padding-left: 0;">`;
+    
+            if (criticalHtml) {
+                suggestionHtml += `
+                    <li><h5 style="${dangerStyle} margin-top: 15px;">🛑 KATEGORI A: MASALAH KRITIS & DISIPLIN TINGGI</h5></li>
+                    ${criticalHtml}
+                `;
+            }
+            if (warningHtml) {
+                suggestionHtml += `
+                    <li><h5 style="${warningStyle} margin-top: 15px;">⚠️ KATEGORI B: PERINGATAN DISIPLIN & KUALITAS INPUT</h5></li>
+                    ${warningHtml}
+                `;
+            }
+            if (infoHtml) {
+                suggestionHtml += `
+                    <li><h5 style="${infoStyle} margin-top: 15px;">💡 KATEGORI C: ANALISIS COMPARATIVE & POTENSI</h5></li>
+                    ${infoHtml}
+                `;
+            }
+            if (successHtml) {
+                suggestionHtml += `
+                    <li><h5 style="${successStyle} margin-top: 15px;">⭐ KATEGORI D: APRESIASI KINERJA SUPERIOR</h5></li>
+                    ${successHtml}
+                `;
+            }
+            
+            suggestionHtml += `</ul>`;
+    
+            if (!issueFound && successHtml === '') {
+                suggestionHtml += '<p style="margin-top: 15px;">Sistem AI Cerdas menyimpulkan: Kinerja tim secara keseluruhan STABIL dan di atas batas minimal. Tidak ada masalah kritis atau superior yang menonjol. <span style="font-weight: 600; color: #27ae60;">SELURUH TIM BEROPERASI DENGAN DISIPLIN!</span> 👍</p>';
+            }
+    
+            // Pasang HTML Saran ke elemen dashboard
+            if (el('kpiSuggestionBox')) el('kpiSuggestionBox').innerHTML = suggestionHtml;
+            // ==========================================================
+            // AKHIR Fitur Saran/Pengingat
+            // ==========================================================
+    
+            // Detail Ranking Table
+            const html = kurirMetrics.map(k => `
+                <tr>
+                    <td><span style="font-weight: 700;">${k.rank}</span></td>
+                    <td>${k.name}</td>
+                    <td><span class="status-badge status-${k.rating >= 80 ? 'active' : k.rating >= 60 ? 'published' : 'inactive'}">${k.rating}</span></td>
+                    <td>${k.monthlyTrxMitra} TRX</td>
+                    <td>${k.monthlyNotaCount} Nota</td>
+                    <td>${typeof formatRp === 'function' ? formatRp(k.monthlyIncome) : k.monthlyIncome}</td>
+                    <td>${(k.consistencyScore * 100).toFixed(0)}%</td>  
+                    <td>${(k.diligenceScore * 100).toFixed(0)}%</td>  
+                </tr>
+            `).join('');
+            
+            el('kpiKurirDetailList').innerHTML = html || '<tr><td colspan="8" class="small" style="text-align: center;">Tidak ada data kurir yang aktif bulan ini.</td></tr>';
+            
+        } catch (error) {
+            console.error("Error generating KPI report:", error);
+            el('kpiKurirDetailList').innerHTML = `<tr><td colspan="8" class="small" style="text-align: center; color: #c0392b;">Gagal memuat data KPI. Pesan Error: ${error.message}. Cek koneksi Firebase atau pastikan semua ID HTML dan fungsi dependensi (el, formatRp, dll) tersedia.</td></tr>`;
+            if (el('kpiSuggestionBox')) el('kpiSuggestionBox').innerHTML = 'Gagal melakukan analisis data. Cek koneksi atau konsol error. Pastikan Anda sudah mengupdate SELURUH fungsi `generateKpiReport`.';
+        }
+    }
     /* --- LOGIKA JAVASCRIPT UNTUK TOGGLE MENU --- */
     document.addEventListener('DOMContentLoaded', () => {
         const navMenu = document.getElementById('adminTabNav');
