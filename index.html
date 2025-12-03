@@ -710,77 +710,228 @@
       font-size: 0.9rem;
       border-radius: 12px;
     }
-            /* Modal */
-      .modal {
+    /* Pastikan Anda sudah punya variabel :root { ... } yang mendefinisikan warna dan shadow */
+    
+    /* --- 1. MODAL OVERLAY (Layar Gelap di Belakang Nota) --- */
+    .modal {
         position: fixed;
-        top:0; left:0;
-        width:100%; height:100%;
-        background: rgba(0,0,0,0.6);
-        display:flex; align-items:center; justify-content:center;
-        z-index:9999;
-      }
-      .modal.hidden { display:none; }
-      .modal-content {
-        background:#fff;
-        border-radius:12px;
-        padding:20px;
-        width:90%;
-        max-width:600px;
-        font-family: 'Segoe UI', Tahoma, sans-serif;
-        box-shadow:0 8px 24px rgba(0,0,0,0.3);
-        animation: fadeIn 0.3s ease;
-      }
-      @keyframes fadeIn {
-        from {opacity:0; transform:translateY(-10px);}
-        to {opacity:1; transform:translateY(0);}
-      }
-      /* Nota */
-      .nota-header {
-        display:flex; justify-content:space-between;
-        align-items:flex-start;
-      }
-      .nota-header h2 { margin:0; color:00CAFF; }
-      .nota-meta p { margin:2px 0; font-size:14px; }
-      .nota-body { margin:15px 0; }
-      .nota-table {
-        width:100%;
-        border-collapse:collapse;
-      }
-      .nota-table th, .nota-table td {
-        border:1px solid #ddd;
-        padding:6px;
-        font-size:14px;
-        text-align:left;
-      }
-      .nota-table th {
-        background:#f5f5f5;
-      }
-      .nota-summary {
-        text-align:right;
-        font-size:15px;
-      }
-      .nota-summary h3 {
-        margin:8px 0 0;
-        color:#d32f2f;
-      }
-      .nota-footer {
-        text-align:center;
-        margin-top:15px;
-        font-size:13px;
-        color:#555;
-        border-top:1px dashed #aaa;
-        padding-top:8px;
-      }
-      .nota-actions {
-        margin-top:15px;
-        text-align:right;
-      }
-      .btn.primary {
-        background:#00c853;
-        color:#fff;
-      }
-      .btn:hover { opacity:0.9; }
-    /* --- CSS untuk Perbaikan Tampilan Mitra --- */
+        z-index: 2000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgba(0, 0, 0, 0.7);
+        display: flex; 
+        align-items: center; 
+        justify-content: center; 
+        padding: 10px; /* Padding luar dikurangi agar lebih lega di HP */
+    }
+    .modal.hidden { 
+        display: none; 
+    }
+    /* --- Tambahan Khusus untuk Rata Kanan Tambahan --- */
+    #notaTambahan {
+        /* Wajib menggunakan display: block agar text-align berfungsi */
+        display: block; 
+        text-align: right; 
+        /* Menggunakan flex-grow agar span ini mengambil seluruh sisa ruang yang tersedia */
+        flex-grow: 1; 
+        /* Penting: Pastikan teks di dalam span ini menggunakan ukuran font yang sama dengan summary */
+        font-size: 0.9rem; /* Mengikuti .nota-summary p yang lain */
+    }
+    /* --- 2. KARTU NOTA (Isi Konten) - Dibuat Sangat Kompak --- */
+    .modal-content.nota-card {
+        background-color: var(--card-bg);
+        border-radius: 8px; /* Sudut lebih kecil */
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2); 
+        max-width: 350px; /* Sangat Kompak untuk HP */
+        width: 100%;
+        animation: fadeIn 0.3s ease-out;
+        padding: 15px; /* Padding internal minimalis */
+        font-family: 'Inter', sans-serif;
+    }
+     
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(-10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+     
+    /* --- 3. HEADER & META NOTA --- */
+    .nota-header {
+        text-align: center;
+        margin-bottom: 15px;
+        padding-bottom: 5px;
+    }
+     
+    .nota-header h2 {
+        font-size: 1.4rem; /* Font header lebih kecil */
+        font-weight: 800;
+        color: var(--primary-dark);
+        margin: 0 0 5px 0;
+    }
+     
+    .nota-meta {
+        font-size: 0.8rem; /* Ukuran font info dasar sangat kecil */
+        color: var(--text-secondary);
+        line-height: 1.4;
+        display: grid; 
+        grid-template-columns: 1fr 1fr;
+        gap: 3px; 
+        margin-top: 10px;
+        padding-top: 10px;
+        border-top: 1px dashed var(--border);
+    }
+    .nota-meta p {
+        margin: 1px 0; 
+        text-align: left;
+    }
+    .nota-meta p:nth-child(even) {
+        text-align: right;
+    }
+    .nota-meta strong {
+        font-weight: 600;
+        color: var(--text-primary);
+    }
+     
+    /* --- 4. TABEL ITEM (Isi Nota) - Dibuat Lebih Ramping --- */
+    .nota-body {
+        margin: 15px 0; 
+    }
+     
+    .nota-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.85rem; /* Font tabel lebih kecil */
+    }
+     
+    .nota-table thead tr {
+        border-bottom: 1px solid var(--text-primary); 
+    }
+     
+    .nota-table th {
+        padding: 8px 3px; 
+        text-align: left;
+        font-weight: 700;
+        color: var(--text-primary);
+        border: none;
+    }
+     
+    .nota-table td {
+        padding: 6px 3px; /* Padding sangat minimal */
+        border-bottom: 1px dashed var(--border); 
+        color: var(--text-primary);
+        border: none;
+    }
+     
+    /* Alignment rata kanan untuk Qty, Harga, Subtotal */
+    .nota-table th:nth-child(3), .nota-table td:nth-child(3),
+    .nota-table th:nth-child(4), .nota-table td:nth-child(4),
+    .nota-table th:nth-child(5), .nota-table td:nth-child(5) {
+        text-align: right;
+    }
+     
+    /* --- 5. RINGKASAN & TOTAL --- */
+    .nota-summary {
+        font-size: 0.9rem; 
+        padding-top: 10px;
+        border-top: 1px dashed var(--border);
+        margin-bottom: 15px; 
+        text-align: left;
+    }
+     
+    .nota-summary p {
+        display: flex;
+        justify-content: space-between;
+        padding: 3px 0; 
+        color: var(--text-secondary);
+        margin: 0;
+    }
+     
+    .nota-summary h3 {
+        display: flex;
+        justify-content: space-between;
+        font-weight: 800;
+        font-size: 1.3rem; /* Font total lebih kecil */
+        color: var(--primary); 
+        margin: 8px 0 0 0;
+        padding-top: 8px;
+        border-top: 3px double var(--text-primary); 
+    }
+     
+    /* --- 6. FOOTER NOTA --- */
+    .nota-footer {
+        text-align: center;
+        margin-top: 15px; 
+        padding-top: 10px;
+        border-top: 1px dashed var(--border);
+        font-size: 0.75rem; /* Font footer sangat kecil */
+        color: var(--text-secondary);
+        line-height: 1.4;
+    }
+     
+    /* --- 7. ACTIONS (Tombol) --- */
+    .nota-actions {
+        display: flex;
+        justify-content: space-between;
+        gap: 8px; 
+        margin-top: 20px; 
+        padding-top: 15px;
+        border-top: 1px solid var(--border);
+        text-align: unset;
+    }
+    .nota-actions button {
+        flex-grow: 1; 
+    }
+    
+    /* --- 8. BUTTONS (Umum - Kompak) --- */
+    .btn {
+      padding: 8px 15px; /* Kompak */
+      border-radius: 0.5rem;
+      font-size: 0.9rem; /* Kompak */
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      border: 1px solid transparent;
+    }
+    .btn.primary {
+      background: var(--primary);
+      color: white;
+    }
+    .btn.secondary {
+      background: var(--card-bg);
+      color: var(--text-primary);
+      border: 1px solid var(--border);
+    }
+     
+    /* --- PRINT FRIENDLY (Wajib) --- */
+    @media print {
+        body * {
+            visibility: hidden;
+        }
+        .modal-content.nota-card, .modal-content.nota-card * {
+            visibility: visible;
+            box-shadow: none !important;
+        }
+        .modal-content.nota-card {
+            position: absolute;
+            left: 0;
+            top: 0;
+            margin: 0;
+            padding: 0;
+            border: none;
+            box-shadow: none; 
+            max-width: none;
+            width: 100%;
+        }
+        .nota-actions {
+            display: none; 
+        }
+    }
     @media (max-width: 768px) {
         /* Membuat input dan button di grid 3 kolom menjadi full-width di mobile */
         .grid-3 > div {
@@ -943,6 +1094,55 @@
     .status-published {
         background-color: rgba(0, 119, 200, 0.2);
         color: var(--primary);
+    }
+    /* --- CSS UNTUK MERAPIHKAN TOMBOL AKSI TABEL --- */
+    .action-group {
+        display: flex;
+        gap: 6px; /* Memberi jarak horizontal yang rapi antar tombol */
+        flex-wrap: nowrap; /* Memastikan tombol tidak pecah baris */
+        justify-content: center; /* Memusatkan tombol di kolom */
+        align-items: center;
+    }
+    
+    /* Opsional: Membuat tombol mini lebih kompak dan seragam */
+    .mini-btn {
+        padding: 6px 12px;
+        font-size: 0.85rem;
+        line-height: 1; /* Memastikan tinggi tombol seragam */
+    }
+    
+    /* Responsif: Jika layar terlalu kecil, tumpuk tombol secara vertikal */
+    @media (max-width: 600px) {
+        .action-group {
+            flex-direction: column; /* Tumpuk vertikal di HP */
+            gap: 3px;
+            align-items: stretch; /* Membuat tombol vertikal selebar container */
+        }
+    }
+    /* --- CSS UNTUK FRAUD ALERT --- */
+    .status-badge {
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 0.85rem;
+        display: inline-block;
+        font-weight: 600;
+    }
+    .status-danger {
+        background-color: #ffcccc; 
+        color: #cc0000; 
+        border: 1px solid #cc0000;
+    }
+    .status-success {
+        background-color: #e6ffe6; 
+        color: #2ed573;
+    }
+    .small-text-alert {
+        display: block;
+        font-size: 0.75rem;
+        color: var(--secondary); 
+        cursor: pointer;
+        text-decoration: underline;
+        margin-top: 2px;
     }
   </style>
 </head>
@@ -1205,7 +1405,7 @@
             <tr>
               <th>No Nota</th>
               <th>Kurir</th>
-              <th>Tanggal</th>
+              <th>Fraud Status</th> <th>Tanggal</th>
               <th>Ongkir</th>
               <th>Tambahan</th>
               <th>Total</th>
@@ -1225,9 +1425,9 @@
             <h2>Sahabatku Delivery</h2>
           </div>
           <div class="nota-meta">
+            <p><strong>Kurir:</strong> <span id="notaKurir"></span></p>
             <p><strong>No Nota:</strong> <span id="notaNo"></span></p>
             <p><strong>Tanggal:</strong> <span id="notaTanggal"></span></p>
-            <p><strong>Kurir:</strong> <span id="notaKurir"></span></p>
           </div>
         </div>
         <hr>
@@ -1313,6 +1513,7 @@
                 <thead>
                     <tr>
                         <th>Nama</th>
+                        <th>Tanggal/Jam</th>
                         <th>Rating</th>
                         <th>Status</th>
                         <th>Kecepatan</th>
@@ -2397,32 +2598,75 @@
                 if (!notaSnap.exists()) return alert('Nota tidak ditemukan');
                 
                 const nota = notaSnap.val();
+                
+                // 1. ISI DATA NOTA
                 el("notaNo").textContent = nota.noNota || "-";
                 el("notaTanggal").textContent = new Date(nota.createdAt).toLocaleString('id-ID');
                 el("notaKurir").textContent = kurir;
                 
                 el("notaItems").innerHTML = nota.items ? nota.items.map((item, i) => `
-                  <tr>
-                    <td>${i+1}</td>
-                    <td>${item.name}</td>
-                    <td>${item.qty}</td>
-                    <td>${formatRp(item.price)}</td>
-                    <td>${formatRp(item.subtotal)}</td>
-                  </tr>`).join('') : `<tr><td colspan="5" style="text-align:center">Tidak ada item</td></tr>`;
-
+                    <tr>
+                      <td>${i+1}</td>
+                      <td>${item.name}</td>
+                      <td>${item.qty}</td>
+                      <td>${formatRp(item.price)}</td>
+                      <td>${formatRp(item.subtotal)}</td>
+                    </tr>`).join('') : `<tr><td colspan="5" style="text-align:center">Tidak ada item</td></tr>`;
+        
                 el("notaOngkir").textContent = formatRp(nota.ongkir);
-                const tambahanText = nota.tambahans ? nota.tambahans.map(t => `${t.type}: ${formatRp(t.nominal)}`).join(", ") : "-";
-                el("notaTambahan").textContent = tambahanText;
+                // Tambahan (diubah agar lebih rapi di nota yang kompak)
+                if (nota.tambahans && nota.tambahans.length > 0) {
+                    // Gabungkan setiap item tambahan menjadi string dengan pemisah <br>
+                    const tambahanItems = nota.tambahans.map(t => `${t.type}: ${formatRp(t.nominal)}`);
+                    el("notaTambahan").innerHTML = tambahanItems.join('<br>'); // Menggunakan innerHTML
+                } else {
+                    // Jika tidak ada tambahan, tampilkan 0
+                    el("notaTambahan").textContent = formatRp(0);
+                }
+        
                 el("notaTotal").textContent = formatRp(nota.total);
-            
+                
                 el("notaModal").classList.remove("hidden");
-            
+                
+                // 2. LOGIKA SIMPAN NOTA (FIXED)
                 el("btnSaveNota").onclick = async () => {
-                  const canvas = await html2canvas(el("notaArea"));
-                  const link = document.createElement("a");
-                  link.href = canvas.toDataURL("image/png");
-                  link.download = `nota_${nota.noNota || notaId}.png`;
-                  link.click();
+                    const notaElement = el("notaArea");
+                    const actions = notaElement.querySelector('.nota-actions');
+                    const modal = el("notaModal"); 
+        
+                    // --- A. Simpan dan Bersihkan Style Sementara ---
+                    // Simpan style asli
+                    const originalModalBg = modal.style.backgroundColor;
+                    const originalNotaShadow = notaElement.style.boxShadow;
+                    const originalNotaPadding = notaElement.style.padding;
+                    
+                    // Terapkan style bersih (seperti struk cetak)
+                    actions.style.display = 'none'; // Sembunyikan tombol aksi
+                    modal.style.backgroundColor = 'transparent'; // Hapus background gelap modal
+                    notaElement.style.boxShadow = 'none'; // Hapus shadow kartu
+                    notaElement.style.padding = '5px'; // Padding sangat minimal
+                    
+                    // --- B. Ambil Gambar (Screenshot) ---
+                    const canvas = await html2canvas(notaElement, {
+                        scale: 3, // Resolusi tinggi (wajib agar gambar tajam)
+                        useCORS: true 
+                    });
+        
+                    // --- C. Kembalikan Style dan Unduh Gambar ---
+                    // Kembalikan style segera setelah canvas dibuat
+                    actions.style.display = 'flex'; // Tampilkan lagi tombol aksi
+                    
+                    modal.style.backgroundColor = originalModalBg || 'rgba(0, 0, 0, 0.7)'; 
+                    notaElement.style.boxShadow = originalNotaShadow || '0 5px 15px rgba(0, 0, 0, 0.2)';
+                    notaElement.style.padding = originalNotaPadding || '15px'; // Kembali ke padding kompak
+                    
+                    // Unduh Gambar
+                    const link = document.createElement("a");
+                    link.href = canvas.toDataURL("image/png");
+                    link.download = `nota_${nota.noNota || notaId}.png`;
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
                 };
             } catch (error) {
                 console.error("Error viewing nota:", error);
@@ -2507,6 +2751,8 @@
     
     el("btnCloseNota").addEventListener('click', () => el("notaModal").classList.add("hidden"));
 
+    // GANTI SELURUH FUNGSI loadAllNota ANDA DENGAN KODE DI BAWAH INI:
+    
     async function loadAllNota(filters = {}) {
         // 1. Set default tanggal hari ini pada input HTML baru
         const singleDateInput = el('filterSingleDate');
@@ -2524,13 +2770,15 @@
         }
         
         // Tampilkan loading state
-        el('allNotaList').innerHTML = '<tr><td colspan="8" style="text-align: center; color: var(--text-secondary); padding: 20px;">Memuat data...</td></tr>';
+        // Perbaikan: colspan diubah dari 8 menjadi 9
+        el('allNotaList').innerHTML = '<tr><td colspan="9" style="text-align: center; color: var(--text-secondary); padding: 20px;">Memuat data...</td></tr>';
         
         try {
             // Karena struktur DB Anda berdasarkan Kurir, kita tetap ambil semua lalu filter di client
             const notaSnap = await get(ref(db, 'nota'));
             if (!notaSnap.exists()) {
-              el('allNotaList').innerHTML = '<tr><td colspan="8" class="small">Tidak ada nota</td></tr>';
+              // Perbaikan: colspan diubah dari 8 menjadi 9
+              el('allNotaList').innerHTML = '<tr><td colspan="9" class="small">Tidak ada nota</td></tr>';
               return;
             }
             
@@ -2563,27 +2811,103 @@
                 return tambahans.reduce((sum, t) => sum + Number(t.nominal || 0), 0);
             };
             
-            el('allNotaList').innerHTML = filtered.length > 0 ? filtered.map(nota => `
-              <tr>
-                <td>${nota.noNota || ''}</td>
-                <td>${nota.kurir || ''}</td>
-                <td>${nota.createdAt ? new Date(nota.createdAt).toLocaleDateString('id-ID') : '-'}</td>
-                <td>${formatRp(nota.ongkir)}</td>
-                <td>${formatRp(totalTambahan(nota.tambahans))}</td>
-                <td>${formatRp(calculatePendapatanNota(nota))}</td>
-                <td>${nota.items ? nota.items.length : 0}</td>
-                <td>
-                  <button class="btn secondary mini-btn" onclick="window.app.viewNotaDetail('${nota.kurir}', '${nota.id}')">Lihat</button>
-                  <button class="btn danger mini-btn" onclick="window.app.deleteNota('${nota.kurir}', '${nota.id}', '${nota.noNota}')">Hapus</button>
-                </td>
-              </tr>
-            `).join('') : `<tr><td colspan="9" class="small">Tidak ada nota pada tanggal ${new Date(filterDate).toLocaleDateString('id-ID')}</td></tr>`;
+            // --- BLOK MAPPING (TEMPAT KODE FRAUD STATUS DITAMBAHKAN) ---
+            el('allNotaList').innerHTML = filtered.length > 0 ? filtered.map(nota => {
+                
+                // ⭐️ LOGIKA BARU UNTUK FRAUD STATUS
+                const isSuspicious = nota.isSuspicious === true; 
+                const fraudStatus = isSuspicious ? 'Mencurigakan' : 'Aman';
+                const badgeClass = isSuspicious ? 'status-danger' : 'status-success';
+                const tanggalNota = nota.createdAt ? new Date(nota.createdAt).toLocaleDateString('id-ID') : '-';
+                // ⭐️ AKHIR LOGIKA BARU
+    
+                return `
+                  <tr>
+                    <td>${nota.noNota || ''}</td>
+                    <td>${nota.kurir || ''}</td>
+                    
+                    <td style="text-align: center;">
+                        <span class="status-badge ${badgeClass}" style="white-space: nowrap;">
+                            ${fraudStatus}
+                        </span>
+                        ${isSuspicious ? 
+                            `<span class="small-text-alert" 
+                                   onclick="alert('Pelanggaran: ${nota.fraudAlerts ? nota.fraudAlerts.join(', ') : 'Tidak ada detail'}')">
+                                Lihat Detail
+                            </span>`
+                            : ''}
+                    </td>
+                    
+                    <td>${tanggalNota}</td>
+                    <td>${formatRp(nota.ongkir || 0)}</td>
+                    <td>${formatRp(totalTambahan(nota.tambahans))}</td>
+                    <td>${formatRp(calculatePendapatanNota(nota))}</td>
+                    <td>${nota.items ? nota.items.length : 0}</td>
+                    <td>
+                      <button class="btn secondary mini-btn" onclick="window.app.viewNotaDetail('${nota.kurir}', '${nota.id}')">Lihat</button>
+                      <button class="btn danger mini-btn" onclick="window.app.deleteNota('${nota.kurir}', '${nota.id}', '${nota.noNota}')">Hapus</button>
+                    </td>
+                  </tr>
+                `;
+            }).join('') : `<tr><td colspan="9" class="small">Tidak ada nota pada tanggal ${new Date(filterDate).toLocaleDateString('id-ID')}</td></tr>`;
+            // --- AKHIR BLOK MAPPING ---
             
         } catch (error) {
             console.error("Error loading all nota:", error);
             el('allNotaList').innerHTML = '<tr><td colspan="9" class="small error">Gagal memuat data nota</td></tr>';
         }
     }
+    // Listener untuk tombol Filter Baru
+    el('btnFilterNotaNew').addEventListener('click', () => {
+        const filterDate = el('filterSingleDate').value;
+        const filterKurir = el('filterKurir').value;
+        
+        if (!filterDate) {
+            alert("Harap pilih tanggal filter!");
+            return;
+        }
+        
+        // Panggil loadAllNota dengan filter tanggal tunggal
+        loadAllNota({
+            startDate: filterDate, 
+            endDate: filterDate, // Gunakan tanggal yang sama untuk Start dan End
+            kurir: filterKurir
+        });
+    });
+    
+    // Listener untuk tombol Reset Baru
+    el('btnResetFilterNew').addEventListener('click', () => {
+        // Muat nota hari ini sebagai default
+        loadAllNota({ startDate: getTodayDate(), endDate: getTodayDate() });
+    });
+
+    el('btnExportNota').addEventListener('click', async () => {
+      try {
+        const notaSnap = await get(ref(db, 'nota'));
+        if (!notaSnap.exists()) return alert('Tidak ada data untuk diekspor');
+        let allNota = [];
+        const notaData = notaSnap.val();
+        Object.keys(notaData).forEach(kurir => {
+            Object.keys(notaData[kurir]).forEach(id => {
+                allNota.push({kurir, ...notaData[kurir][id]});
+            })
+        })
+        let csv = 'No Nota,Kurir,Tanggal,Total,Ongkir,Jumlah Item,Nomor HP\n';
+        allNota.forEach(n => {
+          csv += `"${n.noNota||''}","${n.kurir||''}","${new Date(n.createdAt).toLocaleDateString('id-ID')}","${n.total||0}","${n.ongkir||0}","${n.items?n.items.length:0}","${n.custPhone||''}"\n`;
+        });
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = `sahabatku_nota_export_${new Date().toISOString().slice(0,10)}.csv`;
+        link.click();
+        URL.revokeObjectURL(link.href);
+      } catch (error) {
+        console.error("Error exporting data:", error);
+        alert('Gagal mengekspor data');
+      }
+    });
+
     // Listener untuk tombol Filter Baru
     el('btnFilterNotaNew').addEventListener('click', () => {
         const filterDate = el('filterSingleDate').value;
@@ -2890,38 +3214,56 @@
         try {
             const snapshot = await get(ref(db, 'testimoni'));
             if (!snapshot.exists()) {
-                el('testimoniList').innerHTML = '<tr><td colspan="7" class="small">Belum ada testimoni</td></tr>';
+                el('testimoniList').innerHTML = '<tr><td colspan="8" class="small">Belum ada testimoni</td></tr>';
                 return;
             }
             const data = snapshot.val();
             const testimoniArray = Object.keys(data).map(key => ({ id: key, ...data[key] }));
             testimoniArray.sort((a, b) => b.timestamp - a.timestamp); 
-
+    
             const html = testimoniArray.map(item => {
                 const isPublished = item.isPublished === true;
+                
+                // --- LOGIKA BARU UNTUK FORMAT TANGGAL/JAM ---
+                const tanggalWaktu = item.timestamp 
+                    ? new Date(item.timestamp).toLocaleString('id-ID', { 
+                          year: 'numeric', 
+                          month: 'short', 
+                          day: 'numeric',
+                          hour: '2-digit',     
+                          minute: '2-digit'    
+                      }) 
+                    : '-';
+                // ---------------------------------------------
+    
                 return `
-                <tr>
-                    <td>${item.fullname || '-'}</td>
-                    <td>${'⭐'.repeat(item.rating)}</td>
-                    <td>
-                        <span class="status-badge ${isPublished ? 'status-published' : 'status-inactive'}">
-                            ${isPublished ? 'Ditampilkan' : 'Disembunyikan'}
-                        </span>
-                    </td>
-                    <td>${item.speed || '-'}</td>
-                    <td>${item.courier || '-'}</td>
-                    <td style="white-space: normal; min-width: 250px;">${item.comments || '-'}</td>
-                    <td>
-                        <button class="btn ${isPublished ? 'secondary' : 'success'} mini-btn" onclick="window.app.toggleTestimoniStatus('${item.id}', ${!isPublished})">
-                            ${isPublished ? 'Sembunyikan' : 'Tampilkan'}
-                        <button class=\"btn danger mini-btn\" onclick=\"window.app.deleteTestimoni('${item.id}')\">\n                            Hapus\n                        </button>
-                    </td>
-                </tr>
-            `}).join('');
+                    <tr>
+                        <td>${item.fullname || '-'}</td>
+                        <td style="white-space: nowrap;">${tanggalWaktu}</td> <td>${'⭐'.repeat(item.rating)}</td>
+                        <td>
+                            <span class="status-badge ${isPublished ? 'status-published' : 'status-inactive'}">
+                                ${isPublished ? 'Ditampilkan' : 'Disembunyikan'}
+                            </span>
+                        </td>
+                        <td>${item.speed || '-'}</td>
+                        <td>${item.courier || '-'}</td>
+                        <td style="white-space: normal; min-width: 250px;">${item.comments || '-'}</td>
+                        <td>
+                            <div class="action-group"> <button class="btn ${isPublished ? 'secondary' : 'success'} mini-btn" onclick="window.app.toggleTestimoniStatus('${item.id}', ${!isPublished})">
+                                    ${isPublished ? 'Sembunyikan' : 'Tampilkan'}
+                                </button>
+                                <button class="btn danger mini-btn" onclick="window.app.deleteTestimoni('${item.id}')">
+                                    Hapus
+                                </button>
+                            </div>
+                        </td>
+                `;
+            }).join('');
             el('testimoniList').innerHTML = html;
         } catch (error) {
             console.error("Error loading testimoni:", error);
-            el('testimoniList').innerHTML = '<tr><td colspan="7" class="small error">Gagal memuat data</td></tr>';
+            // Ubah colspan menjadi 8 karena sekarang ada 8 kolom di tabel
+            el('testimoniList').innerHTML = '<tr><td colspan="8" class="small error">Gagal memuat data</td></tr>';
         }
     }
     window.app.deleteTestimoni = async (testimoniId) => {
