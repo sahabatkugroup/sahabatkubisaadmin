@@ -545,23 +545,48 @@
             el.classList.add('show');
             setTimeout(()=>el.classList.remove('show'),5000);
         }
-
-        function generateFairOffForMonth(ym){
-            const [y,m]=ym.split('-').map(Number), year=y, month=m-1;
-            const days = new Date(year, month+1, 0).getDate();
+        function generateFairOffForMonth(ym) {
+            const [y, m] = ym.split('-').map(Number), year = y, month = m - 1;
+            const days = new Date(year, month + 1, 0).getDate();
             const pool = kurirList.slice();
-            if (pool.length === 0) { jadwalData[ym]=[]; return; }
-            const counts = Object.fromEntries(pool.map(k=>[k,0]));
-            const arr=[];
-            for(let d=1; d<=days; d++){
-                const minV = Math.min(...Object.values(counts));
-                const cands = pool.filter(k=>counts[k]===minV);
-                const pick = cands[Math.floor(Math.random()*cands.length)];
-                counts[pick]+=1;
-                const dt=new Date(year, month, d);
-                arr.push({ tanggal: fmtISO(dt), off: pick, pengganti: '' });
+            
+            if (pool.length === 0) { 
+                jadwalData[ym] = []; 
+                return; 
             }
-            jadwalData[ym]=arr;
+        
+            // Inisialisasi penghitung berapa kali tiap kurir sudah OFF
+            const counts = Object.fromEntries(pool.map(k => [k, 0]));
+            const arr = [];
+            
+            // Tentukan jumlah maksimal kurir OFF per hari (Max 2)
+            const maxOffPerDay = 2;
+        
+            for (let d = 1; d <= days; d++) {
+                const dt = new Date(year, month, d);
+                const dayOffs = []; // Array untuk menampung kurir yang OFF hari ini
+        
+                // Kita ambil 2 kurir (atau kurang jika pool sedikit)
+                for (let i = 0; i < maxOffPerDay; i++) {
+                    // Cari kurir yang paling jarang OFF dan belum terpilih hari ini
+                    const minV = Math.min(...pool.filter(k => !dayOffs.includes(k)).map(k => counts[k]));
+                    const candidates = pool.filter(k => counts[k] === minV && !dayOffs.includes(k));
+                    
+                    if (candidates.length > 0) {
+                        const pick = candidates[Math.floor(Math.random() * candidates.length)];
+                        counts[pick] += 1;
+                        dayOffs.push(pick);
+                    }
+                }
+        
+                // Simpan sebagai string dipisahkan koma agar muat di tabel
+                arr.push({ 
+                    tanggal: fmtISO(dt), 
+                    off: dayOffs.join(', '), 
+                    pengganti: '' 
+                });
+            }
+            jadwalData[ym] = arr;
         }
 
         function renderJadwal(ym){
@@ -604,14 +629,17 @@
             tbody.innerHTML = '';
             if (!jadwalData[ym]) return;
 
+            // Di dalam renderAbsensi, ubah bagian penentuan status:
             const dataToRender = [];
             jadwalData[ym].forEach(it => {
                 kurirList.forEach(k => {
+                    // Cek apakah nama kurir ada di dalam list OFF hari itu
+                    const isOff = it.off.split(', ').includes(k);
                     dataToRender.push({
                         tanggal: it.tanggal,
                         nama: k,
-                        status: (k === it.off) ? 'Off' : 'On',
-                        isOffDay: (k === it.off)
+                        status: isOff ? 'Off' : 'On',
+                        isOffDay: isOff
                     });
                 });
             });
