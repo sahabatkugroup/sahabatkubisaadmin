@@ -904,48 +904,72 @@
                 });
             });
         }
-
         window.saveAbsensiSetting = async (button, kurir) => {
             const ym = document.getElementById('monthPick').value;
             const row = button.closest('tr');
-            const offCount = parseInt(row.querySelector('.off-count-select').value, 10);
+            const selectEl = row.querySelector('.off-count-select'); // Ambil elemen dropdown
+            const offCount = parseInt(selectEl.value, 10);
             
             if (isNaN(offCount) || offCount < 0) {
                 popupShow(false, 'Gagal', 'Jumlah OFF tidak valid.');
                 return;
             }
-
-            const confirmSave = confirm(`Yakin ingin mengatur jumlah OFF untuk ${kurir} menjadi ${offCount} hari?`);
+        
+            const confirmSave = confirm(`Yakin ingin mengatur ulang jadwal secara ACAK untuk ${kurir} menjadi ${offCount} hari OFF?`);
             if (!confirmSave) {
-                row.querySelector('.off-count-select').value = row.querySelector('.off-count-select').getAttribute('data-original-value');
+                selectEl.value = selectEl.getAttribute('data-original-value');
                 button.style.display = 'none';
                 return;
             }
-
+        
             const currentJadwal = jadwalData[ym];
             
+            // 1. Bersihkan dulu jadwal OFF kurir ini
             currentJadwal.forEach(day => {
-                if (day.off === kurir) {
-                    day.off = '';
+                let offs = day.off ? day.off.split(',').map(n => n.trim()).filter(n => n !== "") : [];
+                if (offs.includes(kurir)) {
+                    offs = offs.filter(n => n !== kurir);
+                    day.off = offs.join(', ');
                 }
             });
             
-            const availableSlots = currentJadwal.filter(day => day.off === '');
-            
+            // 2. Cari slot kosong (max 2 orang/hari)
+            let availableDays = currentJadwal.filter(day => {
+                const count = day.off ? day.off.split(',').filter(n => n.trim() !== "").length : 0;
+                return count < 2; 
+            });
+        
+            // 3. Acak (Shuffle)
+            for (let i = availableDays.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [availableDays[i], availableDays[j]] = [availableDays[j], availableDays[i]];
+            }
+        
+            // 4. Masukkan nama kurir
             let assignedCount = 0;
-            for (let i = 0; i < availableSlots.length && assignedCount < offCount; i++) {
-                availableSlots[i].off = kurir;
+            for (let i = 0; i < availableDays.length && assignedCount < offCount; i++) {
+                let currentOffs = availableDays[i].off ? availableDays[i].off.split(',').map(n => n.trim()).filter(n => n !== "") : [];
+                currentOffs.push(kurir);
+                availableDays[i].off = currentOffs.join(', ');
                 assignedCount++;
             }
-
-            if (assignedCount < offCount) {
-                 popupShow(false, 'Peringatan', `Hanya bisa mengatur ${assignedCount} hari OFF karena keterbatasan slot kosong. Pastikan Anda meregenerasi jadwal jika diperlukan.`);
-            }
-
+        
+            // 5. Simpan ke database
             await saveFirestoreJadwal(ym);
-            popupShow(true, 'Pengaturan Tersimpan', `${kurir}: ${assignedCount} hari OFF di bulan ${ym}`);
-            button.style.display = 'none';
-        }
+            
+            // --- BAGIAN PENTING AGAR ANGKA TIDAK BERUBAH ---
+            // Update attribute data-original-value dengan angka yang baru disimpan
+            selectEl.setAttribute('data-original-value', assignedCount); 
+            
+            if (assignedCount < offCount) {
+                 popupShow(false, 'Peringatan', `Hanya berhasil mengacak ${assignedCount} hari karena slot penuh.`);
+            } else {
+                 popupShow(true, 'Berhasil Diacak', `${kurir}: ${assignedCount} hari OFF tersimpan.`);
+            }
+            
+            button.style.display = 'none'; // Sembunyikan tombol simpan karena data sudah sinkron
+            quickSync(); // Refresh tampilan semua tabel
+        };
 
         function quickSync(){
             const ym=document.getElementById('monthPick').value;
