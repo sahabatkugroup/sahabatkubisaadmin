@@ -649,7 +649,6 @@
                 const matchDate = selectedDate ? item.tanggal === selectedDate : true;
                 return matchCourier && matchDate;
             });
-
             filteredData.forEach(item => {
                 const tr = document.createElement('tr');
                 tr.innerHTML = `<td>${item.tanggal}</td><td>${item.nama}</td>`;
@@ -657,30 +656,65 @@
                 const btn = document.createElement('button');
                 btn.className = `btn-mini ${item.status === 'On' ? 'btn-on' : 'btn-off'}`;
                 btn.textContent = item.status;
+                
                 btn.onclick = async () => {
                     const ymLocal = item.tanggal.slice(0, 7);
                     const row = jadwalData[ymLocal].find(r => r.tanggal === item.tanggal);
-                    row.off = (item.status === 'On') ? item.nama : '';
+                    
+                    // Mengubah string nama menjadi array untuk mendukung multi-user
+                    let currentOffs = row.off ? row.off.split(',').map(n => n.trim()).filter(n => n !== "") : [];
+            
+                    if (item.status === 'On') {
+                        // Jika diklik dan status On, tambahkan nama ke daftar OFF
+                        if (!currentOffs.includes(item.nama)) {
+                            currentOffs.push(item.nama);
+                        }
+                    } else {
+                        // Jika diklik dan status Off, hapus nama dari daftar OFF
+                        currentOffs = currentOffs.filter(n => n !== item.nama);
+                    }
+            
+                    // Simpan kembali sebagai string yang dipisahkan koma
+                    row.off = currentOffs.join(', ');
                     row.pengganti = '';
+                    
                     await saveFirestoreJadwal(ymLocal);
                 };
+                
                 tdS.appendChild(btn);
                 tr.appendChild(tdS);
                 tbody.appendChild(tr);
             });
         }
-
         function renderRekap(ym){
-            const tbody=document.querySelector('#tableRekap tbody');
-            tbody.innerHTML='';
+            const tbody = document.querySelector('#tableRekap tbody');
+            tbody.innerHTML = '';
             if(!jadwalData[ym]) return;
-            const arr=jadwalData[ym];
-            const sum=Object.fromEntries(kurirList.map(k=>[k,{on:0,off:0}]));
-            arr.forEach(it=>{ kurirList.forEach(k=>{ if(k===it.off) sum[k].off++; else sum[k].on++; }); });
-            kurirList.forEach(k=>{
-                const {on,off}=sum[k]; const total=on+off||1; const skor=Math.round((on/total)*100);
-                const tr=document.createElement('tr');
-                tr.innerHTML=`<td>${k}</td><td>${on}</td><td>${off}</td><td>${skor}%</td>`;
+            
+            const arr = jadwalData[ym];
+            // Inisialisasi penghitung untuk setiap kurir
+            const sum = Object.fromEntries(kurirList.map(k => [k, {on: 0, off: 0}]));
+            
+            arr.forEach(it => { 
+                // Pecah string OFF menjadi array nama-nama kurir yang libur
+                const namesOff = it.off ? it.off.split(',').map(n => n.trim()) : [];
+                
+                kurirList.forEach(k => { 
+                    // Cek apakah nama kurir ada dalam daftar yang OFF hari itu
+                    if(namesOff.includes(k)) {
+                        sum[k].off++; 
+                    } else {
+                        sum[k].on++; 
+                    }
+                }); 
+            });
+        
+            kurirList.forEach(k => {
+                const {on, off} = sum[k]; 
+                const total = on + off || 1; 
+                const skor = Math.round((on / total) * 100);
+                const tr = document.createElement('tr');
+                tr.innerHTML = `<td>${k}</td><td>${on}</td><td>${off}</td><td>${skor}%</td>`;
                 tbody.appendChild(tr);
             });
         }
