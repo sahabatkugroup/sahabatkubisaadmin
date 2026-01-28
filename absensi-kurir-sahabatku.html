@@ -1,1103 +1,503 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta charset="utf-8"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1"/>
-    <title>Jadwal & Absensi Kurir — Admin</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ABSEN KEHADIRAN SAHABATKU</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/@vladmandic/face-api/dist/face-api.js"></script>
     <style>
-        /* ===== Reset & Root ===== */
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        :root {
-            --primary: #00CAFF;
-            --primary-dark: #0088B3;
-            --bg: #00CAFF;
-            --ok: #10B981;
-            --danger: #EF4444;
-            --pending: #F59E0B;
-            --text: #1F2937;
-            --text-muted: #6B7280;
-            --border-color: #E5E7EB;
-            --radius: 16px;
-            --shadow: rgba(0, 0, 0, 0.06);
-            --shadow-lg: rgba(0, 0, 0, 0.12);
-            --transition-speed: 0.3s;
-            --gradient-primary: linear-gradient(135deg, #00CAFF 0%, #0088B3 100%);
-        }
+        :root { --primary: #00CAFF; --dark: #0f172a; --bg: #f8fafc; --success: #10b981; --error: #ef4444; }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
+
         body { 
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol'; 
-            background: linear-gradient(135deg, var(--bg) 0%, #e0f2fe 100%); 
-            color: var(--text); 
-            -webkit-font-smoothing: antialiased; 
-            -moz-osx-font-smoothing: grayscale; 
-            line-height: 1.6; 
-            font-size: 16px; 
-            min-height: 100vh;
-        }
-        .container { max-width: 1200px; margin: 24px auto; padding: 0 16px; }
-        .card { 
-            background: rgba(255, 255, 255, 0.95); 
-            backdrop-filter: blur(20px); 
-            border-radius: var(--radius); 
-            box-shadow: 0 8px 32px var(--shadow); 
-            padding: 32px; 
-            margin-bottom: 24px; 
-            position: relative; 
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            animation: fadeInUp 0.6s ease-out;
-        }
-        @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(30px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        h1 { 
-            color: var(--primary-dark); 
-            text-align: center; 
-            font-weight: 800; 
-            font-size: clamp(28px, 4vw, 40px); 
-            margin-bottom: 32px; 
-            letter-spacing: 0.05em; 
-            background: var(--gradient-primary); 
-            -webkit-background-clip: text; 
-            -webkit-text-fill-color: transparent; 
-            background-clip: text;
-        }
-        h4 { 
-            color: var(--text); 
-            font-weight: 700; 
-            font-size: 1.375rem; 
-            margin-bottom: 24px; 
+            font-family: 'Plus Jakarta Sans', sans-serif; 
+            background: var(--dark); 
+            margin: 0; 
             display: flex; 
-            align-items: center; 
-            gap: 8px;
-        }
-        h4::before {
-            content: '🎛️'; 
-            font-size: 1.2em;
-        }
-        .btn-kembali {
-            position: absolute;
-            top: 24px;
-            right: 24px;
-            background: rgba(255, 255, 255, 0.8);
-            color: var(--text-muted);
-            border: 1px solid var(--border-color);
-            padding: 10px 18px;
-            border-radius: var(--radius);
-            text-decoration: none;
-            font-size: 0.95rem;
-            font-weight: 600;
-            transition: all var(--transition-speed) ease;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-        .btn-kembali::before {
-            content: '←';
-        }
-        .btn-kembali:hover {
-            background: var(--primary);
-            color: #fff;
-            transform: translateX(-4px);
-            box-shadow: 0 4px 12px rgba(0, 202, 255, 0.3);
-        }
-        .btn {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            padding: 14px 24px;
-            border: 1px solid transparent;
-            border-radius: var(--radius);
-            font-size: 1rem;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all var(--transition-speed) cubic-bezier(0.4, 0, 0.2, 1);
-            text-decoration: none;
-            user-select: none;
-            background: var(--gradient-primary);
-            color: #fff;
-            box-shadow: 0 4px 14px rgba(0, 202, 255, 0.3);
-            position: relative;
+            justify-content: center; 
+            /* Menggunakan dvh agar pas dengan dynamic toolbar browser HP */
+            height: 100dvh; 
+            width: 100vw;
             overflow: hidden;
         }
-        .btn::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-            transition: left 0.5s;
-        }
-        .btn:hover::before {
-            left: 100%;
-        }
-        .btn:hover { 
-            background: var(--primary-dark); 
-            transform: translateY(-2px) scale(1.02); 
-            box-shadow: 0 8px 20px rgba(0, 202, 255, 0.4); 
-        }
-        .btn:active {
-            transform: translateY(0) scale(0.98);
-        }
-        .btn.danger { 
-            background: linear-gradient(135deg, var(--danger) 0%, #DC2626 100%);
-            box-shadow: 0 4px 14px rgba(239, 68, 68, 0.3);
-        }
-        .btn.danger:hover { 
-            background: #DC2626; 
-            box-shadow: 0 8px 20px rgba(239, 68, 68, 0.4);
-        }
-        .btn.ghost { 
-            background: transparent; 
-            color: var(--primary); 
-            border-color: var(--primary); 
-            box-shadow: none; 
-        }
-        .btn.ghost:hover { 
-            background: var(--primary); 
-            color: #fff; 
-            box-shadow: 0 4px 14px rgba(0, 202, 255, 0.3); 
-        }
-        .btn.alt { 
-            background: rgba(255, 255, 255, 0.8); 
-            color: var(--text); 
-            border-color: var(--border-color); 
-            box-shadow: none; 
-        }
-        .btn.alt:hover { 
-            background: #F9FAFB; 
-            transform: none; 
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); 
-        }
-        .btn-mini { 
-            padding: 8px 16px; 
-            font-size: 0.875rem; 
-            border-radius: 10px; 
-            font-weight: 600; 
-            min-width: 80px;
-            transition: all 0.2s ease;
-        }
-        .btn-mini:hover {
-            transform: scale(1.05);
-        }
-        .btn-on { 
-            background: linear-gradient(135deg, var(--ok) 0%, #059669 100%);
-            box-shadow: 0 4px 14px rgba(16, 185, 129, 0.3);
-        }
-        .btn-off { 
-            background: linear-gradient(135deg, var(--danger) 0%, #DC2626 100%);
-            box-shadow: 0 4px 14px rgba(239, 68, 68, 0.3);
-        }
-        .btn-pending { 
-            background: linear-gradient(135deg, var(--pending) 0%, #D97706 100%);
-            box-shadow: 0 4px 14px rgba(245, 158, 11, 0.3);
-        }
-        input, select {
-            padding: 14px 18px;
-            border: 2px solid var(--border-color);
-            border-radius: var(--radius);
-            font-size: 1rem;
-            color: var(--text);
-            background: rgba(255, 255, 255, 0.9);
-            transition: all var(--transition-speed) ease;
-            width: 100%;
-            box-sizing: border-box;
-        }
-        input:focus, select:focus {
-            border-color: var(--primary);
-            outline: none;
-            box-shadow: 0 0 0 4px rgba(0, 202, 255, 0.2);
-            transform: scale(1.02);
-        }
-        input[type="month"], input[type="date"] {
-            -webkit-appearance: none;
-            -moz-appearance: none;
-            appearance: none;
-            background: rgba(255, 255, 255, 0.9);
-        }
-        .topbar, .admin-bar { 
+
+        .app-container { 
+            width: 100%; 
+            max-width: 480px; 
+            height: 100%; 
+            background: var(--bg); 
             display: flex; 
-            flex-wrap: wrap; 
-            gap: 12px; 
-            align-items: center; 
-            margin-bottom: 32px; 
-            padding: 16px;
-            background: rgba(255, 255, 255, 0.7);
-            border-radius: var(--radius);
-            border: 1px solid var(--border-color);
-        }
-        .topbar .btn { 
-            flex: 1; 
-            min-width: 120px;
-            text-align: center; 
+            flex-direction: column; 
+            /* Mengizinkan scroll jika konten meluap di HP kecil */
+            overflow-y: auto;
             position: relative;
         }
-        .topbar .btn.active { 
-            background: var(--gradient-primary); 
-            color: #fff; 
-            box-shadow: 0 6px 16px rgba(0, 202, 255, 0.4); 
-            transform: scale(1.05);
-        }
-        .topbar .month-wrap { 
-            display: flex; 
-            align-items: center; 
-            gap: 12px; 
-            margin-left: auto; 
-            background: rgba(255, 255, 255, 0.5);
-            padding: 8px 16px;
-            border-radius: 10px;
-        }
-        .tab { display: none; animation: fadeIn 0.4s ease-in; }
-        .tab.active { display: block; }
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-        .table-wrap { 
-            overflow-x: auto; 
-            border: 1px solid var(--border-color); 
-            border-radius: var(--radius); 
-            margin-top: 20px; 
-            background: rgba(255, 255, 255, 0.8);
-        }
-        table { 
-            width: 100%; 
-            border-collapse: collapse; 
-            font-size: 15px; 
-            color: var(--text); 
-            min-width: 700px; 
-        }
-        thead th { 
-            background: var(--gradient-primary); 
-            color: #fff; 
-            font-weight: 700; 
-            padding: 16px 18px; 
-            text-align: center; 
-            position: sticky; 
+        
+        header { 
+            padding: 15px 20px; 
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); 
+            color: white; 
+            border-bottom: 4px solid var(--primary); 
+            flex-shrink: 0;
+            position: sticky;
             top: 0;
-            z-index: 10;
+            z-index: 100;
         }
-        tbody td { 
-            padding: 16px 18px; 
-            border-bottom: 1px solid var(--border-color); 
-            text-align: center; 
-            background: rgba(255, 255, 255, 0.9); 
-            transition: all 0.2s ease;
-        }
-        tbody tr:last-child td { border-bottom: none; }
-        tbody tr:hover td { 
-            background: rgba(0, 202, 255, 0.1); 
-            transform: scale(1.01);
-        }
-        .badge { 
-            display: inline-block; 
-            padding: 8px 16px; 
-            border-radius: 9999px; 
-            font-weight: 700; 
-            font-size: 13px; 
-            text-transform: uppercase; 
-            letter-spacing: 0.5px;
-            transition: all 0.2s ease;
-        }
-        .badge:hover {
-            transform: scale(1.05);
-        }
-        .badge.on { 
-            background: linear-gradient(135deg, #ECFDF5 0%, #D1FAE5 100%); 
-            color: var(--ok); 
-            box-shadow: 0 2px 8px rgba(16, 185, 129, 0.2);
-        }
-        .badge.off { 
-            background: linear-gradient(135deg, #FEF2F2 0%, #FECACA 100%); 
-            color: var(--danger); 
-            box-shadow: 0 2px 8px rgba(239, 68, 68, 0.2);
-        }
-        .badge.pending { 
-            background: linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%); 
-            color: var(--pending); 
-            box-shadow: 0 2px 8px rgba(245, 158, 11, 0.2);
-        }
-        .small { 
-            font-size: 14px; 
-            color: var(--text-muted); 
-            margin-top: 16px; 
-            font-style: italic;
-        }
-        #popup { 
-            position: fixed; 
-            top: 20px; 
-            right: -400px; 
-            width: min(95vw, 380px); 
-            background: rgba(255, 255, 255, 0.98); 
-            backdrop-filter: blur(20px); 
-            border: 1px solid rgba(255, 255, 255, 0.2); 
-            border-left: 6px solid var(--ok); 
-            border-radius: var(--radius); 
-            box-shadow: 0 12px 40px var(--shadow-lg); 
-            padding: 20px 24px; 
-            display: none; 
-            z-index: 9999; 
-            opacity: 0; 
-            transform: translateY(-20px) scale(0.95); 
-            transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94); 
-            user-select: none;
-            max-height: 80vh;
-            overflow-y: auto;
-        }
-        #popup.show { 
-            display: block; 
-            right: 20px; 
-            opacity: 1; 
-            transform: translateY(0) scale(1); 
-        }
-        #popup .title { 
-            font-weight: 800; 
-            font-size: 1.125rem; 
-            color: var(--primary-dark); 
+        .greeting h2 { margin: 0; font-size: 16px; font-weight: 800; }
+        #live-clock { font-size: 12px; font-weight: 700; color: var(--primary); margin-top: 2px; display: block; }
+
+        .main-content { 
+            padding: 15px; 
+            flex: 1; 
             display: flex; 
-            align-items: center; 
-            gap: 10px;
-            margin-bottom: 8px;
+            flex-direction: column; 
+            gap: 15px;
+            min-height: min-content; /* Memastikan isi tidak terpotong */
         }
-        #popup .icon {
-            font-size: 1.5em;
-            animation: bounceIn 0.6s ease-out;
+        /* Animasi Lingkaran Berputar */
+        .loader {
+            width: 48px;
+            height: 48px;
+            border: 5px solid #FFF;
+            border-bottom-color: var(--primary); /* Warna biru cerah Anda */
+            border-radius: 50%;
+            display: inline-block;
+            box-sizing: border-box;
+            animation: rotation 1s linear infinite;
         }
-        @keyframes bounceIn {
-            0% { transform: scale(0); }
-            50% { transform: scale(1.2); }
-            100% { transform: scale(1); }
+        
+        @keyframes rotation {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
-        #popup .meta { 
-            font-size: 14px; 
-            color: var(--text-muted); 
-            line-height: 1.5;
+        
+        /* Memperbaiki tampilan overlay loading */
+        #loading-overlay {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: rgba(15, 23, 42, 0.9); /* Gelap transparan */
+            color: white;
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
         }
-        #popup.error { border-left-color: var(--danger); }
-        #popup.pending { border-left-color: var(--pending); }
-        .search-bar {
-            display: flex; 
-            gap: 12px; 
-            margin-bottom: 24px; 
-            flex-wrap: wrap;
-            background: rgba(255, 255, 255, 0.7);
-            padding: 16px;
-            border-radius: var(--radius);
-            border: 1px solid var(--border-color);
+        .camera-view { 
+            width: 100%; 
+            aspect-ratio: 3/4; /* Menjaga bentuk kamera tetap kotak panjang */
+            background: #000; 
+            border-radius: 15px; 
+            overflow: hidden; 
+            border: 3px solid white; 
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            position: relative;
+            flex-shrink: 0; /* Mencegah kamera mengecil */
         }
-        @media (max-width: 768px) {
-            .container { padding: 0 12px; }
-            .topbar, .admin-bar { flex-direction: column; align-items: stretch; }
-            .topbar .month-wrap { margin-left: 0; margin-top: 12px; justify-content: center; }
-            .topbar .btn, .admin-bar .btn { width: 100%; }
-            .card { padding: 20px; }
-            #popup { right: -100%; width: 95vw; }
-            #popup.show { right: 5px; }
+        #v, #p { width: 100%; height: 100%; object-fit: cover; }
+        #v { transform: scaleX(-1); }
+
+        .gps-status { 
+            position: absolute; top: 10px; left: 10px; padding: 6px 12px; 
+            border-radius: 8px; font-size: 9px; font-weight: 800; 
+            backdrop-filter: blur(10px); z-index: 10;
         }
+        .active { background: rgba(16, 185, 129, 0.9); color: white; }
+        .inactive { background: rgba(239, 68, 68, 0.9); color: white; }
+
+        .controls { 
+            width: 100%; 
+            padding: 10px 0 20px; 
+            flex-shrink: 0; 
+        }
+        .btn-snap.ready { border-color: var(--primary); box-shadow: 0 5px 15px rgba(0,202,255,0.3); color: var(--primary); }
+        #instruction { font-size: 11px; font-weight: 700; margin-top: 10px; transition: 0.3s; 
+        }
+        /* DROPDOWN MODERN */
+        .select-wrapper { position: relative; margin-bottom: 12px; }
+        .select-wrapper i {
+            position: absolute; left: 15px; top: 50%;
+            transform: translateY(-50%); color: var(--primary);
+            z-index: 10; font-size: 18px;
+        }
+        select { 
+            width: 100%; padding: 16px 16px 16px 45px; 
+            border-radius: 16px; border: 2px solid #e2e8f0; 
+            font-size: 15px; font-weight: 700; background: white; 
+            color: var(--dark); appearance: none; cursor: pointer;
+        }
+        
+        .btn-back {
+            width: 35px; height: 35px; background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 8px;
+            color: white; display: flex; align-items: center; justify-content: center;
+        }
+        
+        .btn-snap { 
+            width: 70px; height: 70px; background: white; border-radius: 50%; 
+            border: 6px solid var(--primary); display: flex; 
+            align-items: center; justify-content: center; margin: 10px auto; 
+            box-shadow: 0 5px 15px rgba(0,202,255,0.3);
+            cursor: pointer;
+        }
+        .btn-snap:disabled { opacity: 0.5; border-color: #cbd5e1; }
+
+        .btn-group { display: flex; gap: 10px; width: 100%; }
+        .btn-send { 
+            flex: 2; padding: 18px; border-radius: 12px; border: none; 
+            background: var(--primary); color: var(--dark); font-size: 14px; 
+            font-weight: 800; text-transform: uppercase;
+        }
+        .btn-retry { 
+            flex: 1; padding: 18px; border-radius: 12px; 
+            border: 2px solid #cbd5e1; background: white; color: var(--error); font-weight: 800;
+        }
+
+        /* OVERLAYS */
+        #loading-overlay, #success-view, #time-blocked {
+            position: fixed; inset: 0; z-index: 9999;
+            display: none; flex-direction: column; align-items: center; justify-content: center;
+        }
+        #loading-overlay { background: rgba(15,23,42,0.95); color: white; }
+        #success-view { background: var(--success); color: white; padding: 20px; text-align: center; }
+        #time-blocked { background: var(--dark); color: white; padding: 30px; text-align: center; }
+
+        .report-card { 
+            background: rgba(0,0,0,0.1); padding: 20px; border-radius: 15px; 
+            width: 100%; max-width: 320px; margin: 20px 0; border: 1px dashed rgba(255,255,255,0.5);
+        }
+
+        canvas { display: none; }
+
+        /* Scrollbar styling */
+        .app-container::-webkit-scrollbar { width: 4px; }
+        .app-container::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="card">
-            <a href="index.html" class="btn-kembali">Kembali</a>
-            <h1>Jadwal & Absensi Kurir (Admin)</h1>
-            
-            <div class="topbar" id="topbar">
-                <button class="btn active" data-tab="tab-jadwal">Jadwal Off</button>
-                <button class="btn" data-tab="tab-rekap">Rekap & Keaktifan</button>
-                <button class="btn ghost" id="btn-absensi-tab" data-tab="tab-absensi">Absensi Harian</button>
-                <button class="btn ghost" id="btn-approval-tab" data-tab="tab-approval">Approval Kurir</button>
-                <button class="btn ghost" id="btn-settings-tab" data-tab="tab-settings">Pengaturan</button>
-                <div class="month-wrap">
-                    <label for="monthPick" style="color: var(--text-muted);">Bulan:</label>
-                    <input type="month" id="monthPick"/>
-                </div>
-            </div>
 
-            <div id="tab-jadwal" class="tab active">
-                <div class="table-wrap">
-                    <table id="tableJadwal">
-                        <thead><tr><th>Tanggal</th><th>Hari</th><th>Kurir Off</th><th>Pengganti</th></tr></thead>
-                        <tbody></tbody>
-                    </table>
-                </div>
-            </div>
+<div id="time-blocked">
+    <i class="fa-solid fa-clock-rotate-left" style="font-size:60px; color:var(--error); margin-bottom:20px;"></i>
+    <h1>AKSES DITUTUP</h1>
+    <p>Mohon Maaf, aplikasi absensi hanya dapat diakses pada jam<br><strong>05:00 - 21:00 WIB</strong></p>
+</div>
 
-            <div id="tab-absensi" class="tab">
-                <div class="search-bar" style="display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: wrap;">
-                    <select id="kurirDropdown" style="flex-grow: 1;">
-                        <option value="">-- Pilih Nama Kurir --</option>
+<div id="loading-overlay">
+    <span class="loader"></span>
+    <p id="load-text" style="margin-top: 20px; font-weight: 800; letter-spacing: 1px;">PROSES...</p>
+</div>
+
+<div id="success-view">
+    <i class="fa-solid fa-circle-check" style="font-size: 70px;"></i>
+    <h2 style="font-weight: 800; margin: 15px 0;">ABSENSI BERHASIL</h2>
+    <div class="report-card">
+        <div><label style="display:block; font-size:10px; opacity:0.8; font-weight:800;">NAMA KURIR</label><span id="res-nama" style="font-weight:800; font-size:18px;">-</span></div>
+        <div style="margin-top:15px;"><label style="display:block; font-size:10px; opacity:0.8; font-weight:800;">WAKTU ABSEN</label><span id="res-waktu" style="font-weight:800; font-size:18px;">-</span></div>
+    </div>
+    <button onclick="location.reload()" style="padding: 15px 50px; border-radius: 50px; border:none; font-weight:800; color:var(--success); background:white;">KEMBALI</button>
+</div>
+
+<div class="app-container">
+    <header style="display: flex; justify-content: space-between; align-items: center;">
+        <div class="greeting">
+            <h2 id="today">Memuat...</h2>
+            <span id="live-clock">00:00:00 WIB</span>
+        </div>
+        <button class="btn-back" onclick="window.location.href='index.html'">
+            <i class="fa-solid fa-chevron-left"></i>
+        </button>
+    </header>
+
+    <div class="main-content">
+        <div class="camera-view">
+            <div id="gps-box" class="gps-status inactive">TUNGGU...</div>
+            <video id="v" autoplay playsinline></video>
+            <img id="p" style="display:none;">
+        </div>
+
+        <div id="ui-1" style="text-align: center;">
+            <button class="btn-snap" id="btnSnap" onclick="takePhoto()" disabled>
+                <i class="fa-solid fa-camera" style="font-size:28px; color:var(--primary)"></i>
+            </button>
+            <p id="instruction" style="font-size: 11px; font-weight: 700; color: #64748b; margin-top: 10px;">
+                MENGHUBUNGKAN...
+            </p>
+        </div>
+            <div id="ui-2" style="display:none;">
+                <div class="select-wrapper">
+                    <i class="fa-solid fa-clock"></i>
+                    <select id="selStatus">
+                        <option value="MASUK">ABSEN MASUK</option>
+                        <option value="PULANG">ABSEN PULANG</option>
                     </select>
-                    <input type="date" id="dateInput" style="flex-grow: 1;">
-                    <button class="btn" id="searchBtn">Cari</button>
                 </div>
-                <div class="table-wrap">
-                    <table id="tableAbsensi">
-                        <thead><tr><th>Tanggal</th><th>Nama Kurir</th><th>Status</th></tr></thead>
-                        <tbody></tbody>
-                    </table>
+            
+                <div class="select-wrapper">
+                    <i class="fa-solid fa-user-circle"></i>
+                    <select id="selKurir" onchange="saveName()">
+                        <option value="">Pilih Nama Kurir...</option>
+                    </select>
                 </div>
-            </div>
-
-            <div id="tab-rekap" class="tab">
-                <div class="table-wrap">
-                    <table id="tableRekap">
-                        <thead><tr><th>Nama Kurir</th><th>Total On</th><th>Total Off</th><th>Skor Keaktifan</th></tr></thead>
-                        <tbody></tbody>
-                    </table>
-                </div>
-            </div>
-
-            <div id="tab-approval" class="tab">
-                <div class="table-wrap">
-                    <table id="tableApproval">
-                        <thead><tr><th>Tanggal</th><th>Kurir Asal</th><th>Pengganti</th><th>Status</th><th>Aksi</th></tr></thead>
-                        <tbody></tbody>
-                    </table>
-                </div>
-            </div>
-
-            <div id="tab-settings" class="tab">
-                <div class="card">
-                    <h4>Manajemen Kurir</h4>
-                    <div style="display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: wrap;">
-                        <input type="text" id="addKurirName" placeholder="Nama Kurir Baru" style="flex-grow: 1;">
-                        <button class="btn" id="btn-add-kurir">Tambah Kurir</button>
-                    </div>
-                    <div style="display: flex; gap: 12px; flex-wrap: wrap;">
-                        <select id="delKurirSelect" style="flex-grow: 1;"></select>
-                        <button class="btn danger" id="btn-del-kurir">Hapus Kurir</button>
-                    </div>
-                </div>
-
-                <div class="card" style="margin-top: 24px;">
-                    <h4>Pengaturan Absensi Bulanan</h4>
-                    <div class="table-wrap">
-                        <table id="absensiSettingsTable">
-                            <thead>
-                                <tr>
-                                    <th>Nama Kurir</th>
-                                    <th>Jumlah Hari OFF</th>
-                                    <th>Aksi</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                </tbody>
-                        </table>
-                    </div>
-                </div>
-
-                <div class="card" style="margin-top: 24px;">
-                    <h4>Aksi Jadwal Bulanan</h4>
-                    <button class="btn danger" id="btn-regen">Regenerasi Off</button>
-                    <p class="small">Tindakan ini akan menghapus jadwal OFF yang ada dan membuat yang baru secara acak.</p>
+                <div class="btn-group">
+                    <button class="btn-retry" onclick="resetCam()">ULANG</button>
+                    <button class="btn-send" onclick="submitData()">KIRIM DATA</button>
                 </div>
             </div>
         </div>
     </div>
+</div>
 
-    <div id="popup">
-        <div class="title"><span class="icon">✅</span><span id="popTitle"></span></div>
-        <div class="meta" id="popMeta"></div>
-    </div>
+<canvas id="c"></canvas>
 
-    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
-    <script>
-        const firebaseConfig = {
-          apiKey: "AIzaSyCtva8TeL40-WotK4kFL_vL8uUXL3GDfww",
-          authDomain: "sahabatkuu-bisa.firebaseapp.com",
-          databaseURL: "https://sahabatkuu-bisa-default-rtdb.asia-southeast1.firebasedatabase.app",
-          projectId: "sahabatkuu-bisa",
-          storageBucket: "sahabatkuu-bisa.firebasestorage.app",
-          messagingSenderId: "315555564115",
-          appId: "1:315555564115:web:56f46dbceb8c154589d4a6",
-          measurementId: "G-PFGYL96VPS"
-        };
-        firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
-        const db = firebase.firestore();
-        const ADMIN_UID = "kSW4ThusrwhUFCQeTsnPV1VNaR72";
-
-        const MASTER_DOC = db.collection('appdata').doc('master');
-        const JADWAL_COLLECTION = db.collection('jadwal_off');
-        const PENGAJUAN_COLLECTION = db.collection('pengajuan_off');
-
-        let kurirList = [];
-        let jadwalData = {};
-        let isFirebaseAdmin = true;
-        let unsubJadwal = null;
-        let pengajuanCache = [];
-        const idDays = ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
-
-        const pad2 = n => String(n).padStart(2,'0');
-        const fmtISO = d => `${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}`;
-        const parseISODate = s => { const [y,m,d]=s.split('-').map(Number); return new Date(y,m-1,d); };
-
-        function popupShow(ok,title,meta){
-            const el=document.getElementById('popup');
-            el.style.borderColor = ok === 'pending' ? 'var(--pending)' : ok ? 'var(--ok)' : 'var(--danger)';
-            el.querySelector('.icon').textContent=ok==='pending'?'⏳':ok?'✅':'⚠️';
-            document.getElementById('popTitle').textContent=title;
-            document.getElementById('popMeta').textContent=meta||'';
-            el.classList.add('show');
-            setTimeout(()=>el.classList.remove('show'),5000);
+<script>
+    const URL_APPS = "https://script.google.com/macros/s/AKfycbwntZzvURlu7mxm0UyE_HDKyBTyLruRCO2YzzNr_A3kr7vkUpMLp_7O60o1ElTRMfI4ZQ/exec";
+    const KANTOR = { lat: -6.4679637, lng: 108.297226, rad: 50 };
+    
+    let isGpsValid = false;
+    let isFaceValid = false;
+    let modelsLoaded = false;
+    let faceInterval;
+    
+    // 1. Load Model AI
+    async function loadModels() {
+        const loader = document.getElementById('loading-overlay');
+        const loadText = document.getElementById('load-text');
+        
+        loader.style.display = 'flex'; // Tampilkan loading berputar
+        loadText.innerText = "MENGUNDUH SENSOR WAJAH...";
+    
+        try {
+            const MODEL_URL = 'https://cdn.jsdelivr.net/npm/@vladmandic/face-api/model/';
+            await faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL);
+            
+            loader.style.display = 'none'; // Sembunyikan jika sudah selesai
+            modelsLoaded = true;
+            startFaceDetection();
+        } catch (e) {
+            loadText.innerText = "GAGAL MEMUAT SENSOR!";
+            console.error(e);
         }
-        function generateFairOffForMonth(ym) {
-            const [y, m] = ym.split('-').map(Number), year = y, month = m - 1;
-            const days = new Date(year, month + 1, 0).getDate();
-            const pool = kurirList.slice();
+    }
+    
+    function clock() {
+        const d = new Date();
+        const timeStr = d.toLocaleTimeString('id-ID', {hour12:false}) + " WIB";
+        document.getElementById('live-clock').innerText = timeStr;
+        document.getElementById('today').innerText = d.toLocaleDateString('id-ID', {weekday:'long', day:'numeric', month:'short'});
+        return timeStr;
+    }
+    setInterval(clock, 1000);
+    
+    async function init() {
+        const jam = new Date().getHours();
+        
+        // Aplikasi tidak bisa diakses sama sekali antara jam 02:00 pagi hingga 04:59 pagi
+        if (jam >= 2 && jam < 5) {
+            const blockView = document.getElementById('time-blocked');
+            blockView.querySelector('p').innerHTML = "Mohon Maaf, aplikasi absensi tidak aktif pada jam<br><strong>02:00 - 05:00 WIB</strong>";
+            blockView.style.display = 'flex';
+            return;
+        }
+        
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({
+                video: { facingMode: 'user', width: { ideal: 640 }, height: { ideal: 480 } }
+            });
+            document.getElementById('v').srcObject = stream;
             
-            if (pool.length === 0) { 
-                jadwalData[ym] = []; 
-                return; 
+            const res = await fetch(URL_APPS);
+            const data = await res.json();
+            const sel = document.getElementById('selKurir');
+            sel.innerHTML = '<option value="">Pilih Nama Kurir...</option>';
+            data.daftarKurir.forEach(n => sel.innerHTML += `<option value="${n}">${n}</option>`);
+            
+            const saved = localStorage.getItem('user_nama_v13');
+            if(saved) sel.value = saved;
+    
+            trackGPS();
+            loadModels(); 
+        } catch(e) { 
+            alert("Mohon izinkan kamera dan lokasi untuk absen!"); 
+        }
+    }
+    
+    // 2. Loop Deteksi Wajah
+    async function startFaceDetection() {
+        const video = document.getElementById('v');
+        modelsLoaded = true;
+    
+        // Simpan ke variabel faceInterval
+        faceInterval = setInterval(async () => {
+            if (video.paused || video.ended || !modelsLoaded) return;
+    
+            const detections = await faceapi.detectAllFaces(video, new faceapi.TinyFaceDetectorOptions());
+            isFaceValid = detections.length > 0;
+            
+            syncButtonAndStatus(); 
+        }, 500);
+    }
+    
+    function trackGPS() {
+        navigator.geolocation.watchPosition(p => {
+            const d = getDist(p.coords.latitude, p.coords.longitude, KANTOR.lat, KANTOR.lng);
+            isGpsValid = (d <= KANTOR.rad);
+            
+            const box = document.getElementById('gps-box');
+            if(!isGpsValid) {
+                box.className = "gps-status inactive"; 
+                box.innerText = "DILUAR KANTOR ("+Math.round(d)+"m)";
             }
+            syncButtonAndStatus();
+        }, null, {enableHighAccuracy:true});
+    }
+    
+    function syncButtonAndStatus() {
+        const btn = document.getElementById('btnSnap');
+        const box = document.getElementById('gps-box');
         
-            // Inisialisasi penghitung berapa kali tiap kurir sudah OFF
-            const counts = Object.fromEntries(pool.map(k => [k, 0]));
-            const arr = [];
+        if (!isGpsValid) {
+            btn.disabled = true;
+            btn.classList.remove('ready');
+            return; // Jika lokasi salah, stop di sini
+        }
+    
+        if (isFaceValid) {
+            box.className = "gps-status active";
+            box.innerText = "SIAP ABSEN (WAJAH TERDETEKSI)";
+            btn.disabled = false;
+            btn.classList.add('ready');
+        } else {
+            box.className = "gps-status inactive";
+            box.innerText = "HADAPKAN WAJAH KE KAMERA";
+            btn.disabled = true;
+            btn.classList.remove('ready');
+        }
+    }
+    
+    function takePhoto() {
+        // BERHENTIKAN DETEKSI WAJAH DI SINI
+        clearInterval(faceInterval);
+        console.log("Deteksi wajah dihentikan karena foto sudah diambil");
+    
+        const v = document.getElementById('v'), c = document.getElementById('c'), p = document.getElementById('p');
+        c.width = 600; c.height = 800;
+        const ctx = c.getContext('2d');
+        
+        // ... sisa kode takePhoto Anda (sama seperti sebelumnya) ...
+        const vW = v.videoWidth, vH = v.videoHeight;
+        const ratio = 3/4;
+        let sW = vW, sH = vH, sX = 0, sY = 0;
+        if (vW / vH > ratio) { sW = vH * ratio; sX = (vW - sW) / 2; } 
+        else { sH = vW / ratio; sY = (vH - sH) / 2; }
+        ctx.translate(c.width, 0); ctx.scale(-1, 1);
+        ctx.drawImage(v, sX, sY, sW, sH, 0, 0, c.width, c.height);
+        
+        p.src = c.toDataURL('image/jpeg', 0.5);
+        p.style.display = 'block'; v.style.display = 'none';
+        document.getElementById('ui-1').style.display = 'none';
+        document.getElementById('ui-2').style.display = 'block';
+    }
+    
+    function resetCam() {
+        document.getElementById('v').style.display = 'block';
+        document.getElementById('p').style.display = 'none';
+        document.getElementById('ui-1').style.display = 'block';
+        document.getElementById('ui-2').style.display = 'none';
+        document.getElementById('gps-box').style.display = 'block';
+    
+        // JALANKAN LAGI DETEKSI WAJAH
+        startFaceDetection(); 
+    }
+    async function submitData() {
+        const n = document.getElementById('selKurir').value;
+        const s = document.getElementById('selStatus').value;
+        const jam = new Date().getHours();
+        
+        if(!n) return alert("Pilih Nama Kurir terlebih dahulu!");
+    
+        // --- LOGIKA VALIDASI JADWAL OPERASIONAL ---
+        if (s === "MASUK") {
+            if (jam < 5 || jam >= 20) {
+                return alert("Gagal! Absen MASUK hanya diperbolehkan antara jam 05:00 s/d 20:00 WIB.");
+            }
+        } else if (s === "PULANG") {
+            const bolehPulang = (jam >= 14 || jam < 2);
+            if (!bolehPulang) {
+                return alert("Gagal! Absen PULANG hanya diperbolehkan antara jam 14:00 s/d 02:00 WIB.");
+            }
+        }
+    
+        // --- LOGIKA JEDA 3 JAM (DIPERBARUI) ---
+        const SEKARANG = new Date().getTime();
+        const JEDA_MS = 3 * 60 * 60 * 1000; // 3 Jam dalam milidetik
+    
+        if (s === "PULANG") {
+            const waktuMasukTerakhir = localStorage.getItem('last_absen_masuk_' + n);
             
-            // Tentukan jumlah maksimal kurir OFF per hari (Max 2)
-            const maxOffPerDay = 2;
-        
-            for (let d = 1; d <= days; d++) {
-                const dt = new Date(year, month, d);
-                const dayOffs = []; // Array untuk menampung kurir yang OFF hari ini
-        
-                // Kita ambil 2 kurir (atau kurang jika pool sedikit)
-                for (let i = 0; i < maxOffPerDay; i++) {
-                    // Cari kurir yang paling jarang OFF dan belum terpilih hari ini
-                    const minV = Math.min(...pool.filter(k => !dayOffs.includes(k)).map(k => counts[k]));
-                    const candidates = pool.filter(k => counts[k] === minV && !dayOffs.includes(k));
+            if (waktuMasukTerakhir) {
+                const selisih = SEKARANG - parseInt(waktuMasukTerakhir);
+                if (selisih < JEDA_MS) {
+                    // Menghitung sisa waktu dalam menit
+                    const sisaMenit = Math.ceil((JEDA_MS - selisih) / (60 * 1000));
+                    const sisaJam = Math.floor(sisaMenit / 60);
+                    const sisaMenitTampil = sisaMenit % 60;
                     
-                    if (candidates.length > 0) {
-                        const pick = candidates[Math.floor(Math.random() * candidates.length)];
-                        counts[pick] += 1;
-                        dayOffs.push(pick);
-                    }
-                }
-        
-                // Simpan sebagai string dipisahkan koma agar muat di tabel
-                arr.push({ 
-                    tanggal: fmtISO(dt), 
-                    off: dayOffs.join(', '), 
-                    pengganti: '' 
-                });
-            }
-            jadwalData[ym] = arr;
-        }
-
-        function renderJadwal(ym){
-            const tbody = document.querySelector('#tableJadwal tbody');
-            tbody.innerHTML='';
-            if(!jadwalData[ym]) return;
-            jadwalData[ym].forEach(it=>{
-                const d = parseISODate(it.tanggal);
-                const hari = idDays[d.getDay()];
-                const tr = document.createElement('tr');
-                const tdTanggal = document.createElement('td'); tdTanggal.textContent = it.tanggal;
-                const tdHari = document.createElement('td'); tdHari.textContent = hari;
-                const tdOff = document.createElement('td');
-                const badge = document.createElement('span');
-                badge.className = it.off ? 'badge off' : 'badge on';
-                badge.textContent = it.off || 'Semua On';
-                badge.style.cursor = 'pointer';
-                badge.title = 'Klik kanan untuk ubah';
-                badge.oncontextmenu = async (e)=>{
-                    e.preventDefault();
-                    const nama = prompt('Set OFF hari ini untuk kurir (kosongkan untuk Semua On):', it.off || '');
-                    if(nama!==null){
-                        const newOff = nama.trim();
-                        it.off = newOff;
-                        it.pengganti = '';
-                        await saveFirestoreJadwal(ym);
-                        popupShow(true,'OFF diperbarui',`${it.tanggal}: ${it.off || 'Semua On'}`);
-                    }
-                };
-                tdOff.appendChild(badge);
-                const tdPeng = document.createElement('td');
-                tdPeng.textContent = it.pengganti || '—';
-                tr.append(tdTanggal, tdHari, tdOff, tdPeng);
-                tbody.appendChild(tr);
-            });
-        }
-
-        function renderAbsensi(ym, selectedCourier = '', selectedDate = '') {
-            const tbody = document.querySelector('#tableAbsensi tbody');
-            tbody.innerHTML = '';
-            if (!jadwalData[ym]) return;
-
-            // Di dalam renderAbsensi, ubah bagian penentuan status:
-            const dataToRender = [];
-            jadwalData[ym].forEach(it => {
-                kurirList.forEach(k => {
-                    // Cek apakah nama kurir ada di dalam list OFF hari itu
-                    const isOff = it.off.split(', ').includes(k);
-                    dataToRender.push({
-                        tanggal: it.tanggal,
-                        nama: k,
-                        status: isOff ? 'Off' : 'On',
-                        isOffDay: isOff
-                    });
-                });
-            });
-
-            const filteredData = dataToRender.filter(item => {
-                const matchCourier = selectedCourier ? item.nama === selectedCourier : true;
-                const matchDate = selectedDate ? item.tanggal === selectedDate : true;
-                return matchCourier && matchDate;
-            });
-            filteredData.forEach(item => {
-                const tr = document.createElement('tr');
-                tr.innerHTML = `<td>${item.tanggal}</td><td>${item.nama}</td>`;
-                const tdS = document.createElement('td');
-                const btn = document.createElement('button');
-                btn.className = `btn-mini ${item.status === 'On' ? 'btn-on' : 'btn-off'}`;
-                btn.textContent = item.status;
-                
-                btn.onclick = async () => {
-                    const ymLocal = item.tanggal.slice(0, 7);
-                    const row = jadwalData[ymLocal].find(r => r.tanggal === item.tanggal);
+                    let pesan = `Gagal! Jeda minimal 3 jam dari absen masuk. \nSisa waktu: `;
+                    pesan += sisaJam > 0 ? `${sisaJam} jam ${sisaMenitTampil} menit.` : `${sisaMenitTampil} menit.`;
                     
-                    // Mengubah string nama menjadi array untuk mendukung multi-user
-                    let currentOffs = row.off ? row.off.split(',').map(n => n.trim()).filter(n => n !== "") : [];
-            
-                    if (item.status === 'On') {
-                        // Jika diklik dan status On, tambahkan nama ke daftar OFF
-                        if (!currentOffs.includes(item.nama)) {
-                            currentOffs.push(item.nama);
-                        }
-                    } else {
-                        // Jika diklik dan status Off, hapus nama dari daftar OFF
-                        currentOffs = currentOffs.filter(n => n !== item.nama);
-                    }
-            
-                    // Simpan kembali sebagai string yang dipisahkan koma
-                    row.off = currentOffs.join(', ');
-                    row.pengganti = '';
-                    
-                    await saveFirestoreJadwal(ymLocal);
-                };
-                
-                tdS.appendChild(btn);
-                tr.appendChild(tdS);
-                tbody.appendChild(tr);
-            });
-        }
-        function renderRekap(ym){
-            const tbody = document.querySelector('#tableRekap tbody');
-            tbody.innerHTML = '';
-            if(!jadwalData[ym]) return;
-            
-            const arr = jadwalData[ym];
-            // Inisialisasi penghitung untuk setiap kurir
-            const sum = Object.fromEntries(kurirList.map(k => [k, {on: 0, off: 0}]));
-            
-            arr.forEach(it => { 
-                // Pecah string OFF menjadi array nama-nama kurir yang libur
-                const namesOff = it.off ? it.off.split(',').map(n => n.trim()) : [];
-                
-                kurirList.forEach(k => { 
-                    // Cek apakah nama kurir ada dalam daftar yang OFF hari itu
-                    if(namesOff.includes(k)) {
-                        sum[k].off++; 
-                    } else {
-                        sum[k].on++; 
-                    }
-                }); 
-            });
-        
-            kurirList.forEach(k => {
-                const {on, off} = sum[k]; 
-                const total = on + off || 1; 
-                const skor = Math.round((on / total) * 100);
-                const tr = document.createElement('tr');
-                tr.innerHTML = `<td>${k}</td><td>${on}</td><td>${off}</td><td>${skor}%</td>`;
-                tbody.appendChild(tr);
-            });
-        }
-
-        function renderApproval(){
-            const tbody = document.querySelector('#tableApproval tbody');
-            tbody.innerHTML='';
-            pengajuanCache.forEach(item=>{
-                const tr = document.createElement('tr');
-                let aksiHtml = '';
-                if(item.status === 'Pending'){
-                    aksiHtml = `
-                        <td>
-                            <button class="btn btn-mini btn-on" onclick="approvePengajuan('${item.id}', '${item.tanggal}', '${item.tukarTanggal}', '${item.asal}', '${item.pengganti}')">Approve</button>
-                            <button class="btn btn-mini btn-off" onclick="rejectPengajuan('${item.id}')" style="margin-left: 6px;">Tolak</button>
-                        </td>
-                    `;
-                } else {
-                    aksiHtml = `
-                        <td>
-                            <button class="btn btn-mini danger" onclick="deletePengajuan('${item.id}')">Hapus</button>
-                        </td>
-                    `;
-                }
-
-                tr.innerHTML = `
-                    <td>${item.tanggal}</td>
-                    <td>${item.asal}</td>
-                    <td>${item.pengganti || '—'}</td>
-                    <td><span class="badge ${item.status === 'Approved' ? 'on' : item.status === 'Rejected' ? 'off' : 'pending'}">${item.status}</span></td>
-                    ${aksiHtml}
-                `;
-                tbody.appendChild(tr);
-            });
-        }
-
-        window.approvePengajuan = async (id, tanggal, tukarTanggal, asal, pengganti) => {
-            if (!asal || asal.trim() === '') {
-                popupShow(false, 'Gagal Approval', 'Nama kurir asal tidak valid.');
-                return; 
-            }
-            
-            const ym = tanggal.slice(0, 7);
-            
-            if (!jadwalData[ym]) {
-                popupShow(false, 'Gagal Approval', 'Jadwal untuk bulan ini belum dimuat. Silakan pilih bulan yang benar di atas.');
-                return;
-            }
-
-            if(!confirm('Yakin ingin menyetujui pengajuan ini?')) return;
-            
-            const batch = db.batch();
-            const docPengajuan = PENGAJUAN_COLLECTION.doc(id);
-            batch.update(docPengajuan, { status: 'Approved', approvedBy: ADMIN_UID, updated: firebase.firestore.FieldValue.serverTimestamp() });
-
-            if (tukarTanggal && tukarTanggal !== 'Tidak Ada') {
-                const row = jadwalData[ym].find(it => it.tanggal === tanggal);
-                const swapRow = jadwalData[ym].find(it => it.tanggal === tukarTanggal);
-                
-                if (row && swapRow) {
-                    const tempKurirOff = row.off;
-                    row.off = swapRow.off;
-                    swapRow.off = tempKurirOff;
-                    row.pengganti = '';
-                    swapRow.pengganti = '';
-                } else {
-                    popupShow(false, 'Gagal Approval', 'Data jadwal tidak ditemukan.');
-                    return;
+                    return alert(pesan);
                 }
             } else {
-                const row = jadwalData[ym].find(it => it.tanggal === tanggal);
-                if (row) {
-                    row.off = asal;
-                    row.pengganti = 'Tidak Ada';
-                } else {
-                    popupShow(false, 'Gagal Approval', 'Data jadwal tidak ditemukan.');
-                    return;
-                }
+                return alert("Anda belum melakukan absen MASUK hari ini melalui perangkat ini.");
             }
-            
-            await batch.commit();
-            await saveFirestoreJadwal(ym);
-            popupShow(true, 'Approval berhasil', 'Tanggal: '+tanggal+' ↔ '+(tukarTanggal || 'Permintaan Off'));
-            await fetchPengajuan();
-            quickSync();
-        };
-
-        async function fetchPengajuan() {
-            const snap = await PENGAJUAN_COLLECTION.orderBy('created', 'desc').get();
-            pengajuanCache = [];
-            snap.forEach(doc => {
-                const d = doc.data();
-                pengajuanCache.push({ id: doc.id, ...d });
-            });
-            renderApproval();
         }
-
-        window.rejectPengajuan = async (id) => {
-            if(!confirm('Yakin ingin MENOLAK pengajuan ini?')) return;
-            try {
-                const docRef = PENGAJUAN_COLLECTION.doc(id);
-                await docRef.update({status: 'Rejected', rejectedBy: ADMIN_UID, updated: firebase.firestore.FieldValue.serverTimestamp()});
-                popupShow(false, 'Pengajuan ditolak', 'Pengajuan telah dibatalkan');
-                await fetchPengajuan();
-            } catch (e) {
-                console.error("Error rejecting document: ", e);
-                popupShow(false, 'Gagal Menolak', e.message);
-            }
-        };
-
-        window.deletePengajuan = async (id) => {
-            if(!confirm('Yakin ingin MENGHAPUS pengajuan ini? Tindakan ini tidak bisa dibatalkan.')) return;
-            try {
-                const docRef = PENGAJUAN_COLLECTION.doc(id);
-                await docRef.delete();
-                popupShow(true, 'Pengajuan dihapus', 'Pengajuan telah dihapus secara permanen.');
-                await fetchPengajuan();
-            } catch (e) {
-                console.error("Error deleting document: ", e);
-                popupShow(false, 'Gagal Menghapus', e.message);
-            }
-        };
-        
-        function populateCourierDropdown() {
-            const dropdown = document.getElementById('kurirDropdown');
-            dropdown.innerHTML = '<option value="">-- Pilih Nama Kurir --</option>';
-            kurirList.forEach(k => {
-                const option = document.createElement('option');
-                option.value = k;
-                option.textContent = k;
-                dropdown.appendChild(option);
+        // --- AKHIR LOGIKA JEDA ---
+    
+        // ... (sisa kode fetch POST dan success view tetap sama) ...
+        const loader = document.getElementById('loading-overlay');
+        const loadText = document.getElementById('load-text');
+        loadText.innerText = "MENGIRIM " + s + "...";
+        loader.style.display = 'flex';
+    
+        const waktuAbsen = clock();
+    
+        try {
+            await fetch(URL_APPS, {
+                method: 'POST', 
+                mode: 'no-cors', 
+                body: JSON.stringify({
+                    nama: n, 
+                    status: s,
+                    foto: document.getElementById('p').src
+                })
             });
+    
+            if (s === "MASUK") {
+                localStorage.setItem('last_absen_masuk_' + n, SEKARANG.toString());
+            }
+    
+            loader.style.display = 'none';
+            document.getElementById('res-nama').innerText = n + " (" + s + ")";
+            document.getElementById('res-waktu').innerText = waktuAbsen;
+            document.getElementById('success-view').style.display = 'flex';
+    
+        } catch(e) {
+            loader.style.display = 'none';
+            alert("Gagal mengirim data!");
         }
-        
-        function populateDelKurirDropdown(){
-            const dropdown = document.getElementById('delKurirSelect');
-            dropdown.innerHTML = '<option value="">-- Pilih Kurir --</option>';
-            kurirList.forEach(k => {
-                const option = document.createElement('option');
-                option.value = k;
-                option.textContent = k;
-                dropdown.appendChild(option);
-            });
-        }
-        
-        function renderAbsensiSettingsTable() {
-            const tbody = document.querySelector('#absensiSettingsTable tbody');
-            tbody.innerHTML = '';
-            
-            const ym = document.getElementById('monthPick').value;
-            if (!jadwalData[ym]) return;
-            
-            const offCounts = {};
-            jadwalData[ym].forEach(it => {
-                if (it.off && it.off !== '') {
-                    offCounts[it.off] = (offCounts[it.off] || 0) + 1;
-                }
-            });
-
-            kurirList.forEach(kurir => {
-                const currentOffCount = offCounts[kurir] || 0;
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td>${kurir}</td>
-                    <td>
-                        <select class="off-count-select" data-original-value="${currentOffCount}">
-                            ${Array.from({length: 10}, (_, i) => `<option value="${i}" ${i === currentOffCount ? 'selected' : ''}>${i}</option>`).join('')}
-                        </select>
-                    </td>
-                    <td>
-                        <button class="btn btn-mini" style="display: none;" onclick="saveAbsensiSetting(this, '${kurir}')">Simpan</button>
-                    </td>
-                `;
-                tbody.appendChild(tr);
-            });
-
-            tbody.querySelectorAll('.off-count-select').forEach(select => {
-                select.addEventListener('change', (e) => {
-                    const originalValue = e.target.getAttribute('data-original-value');
-                    const currentValue = e.target.value;
-                    const saveBtn = e.target.closest('tr').querySelector('.btn-mini');
-                    if (originalValue !== currentValue) {
-                        saveBtn.style.display = 'inline-block';
-                    } else {
-                        saveBtn.style.display = 'none';
-                    }
-                });
-            });
-        }
-        window.saveAbsensiSetting = async (button, kurir) => {
-            const ym = document.getElementById('monthPick').value;
-            const row = button.closest('tr');
-            const selectEl = row.querySelector('.off-count-select'); // Ambil elemen dropdown
-            const offCount = parseInt(selectEl.value, 10);
-            
-            if (isNaN(offCount) || offCount < 0) {
-                popupShow(false, 'Gagal', 'Jumlah OFF tidak valid.');
-                return;
-            }
-        
-            const confirmSave = confirm(`Yakin ingin mengatur ulang jadwal secara ACAK untuk ${kurir} menjadi ${offCount} hari OFF?`);
-            if (!confirmSave) {
-                selectEl.value = selectEl.getAttribute('data-original-value');
-                button.style.display = 'none';
-                return;
-            }
-        
-            const currentJadwal = jadwalData[ym];
-            
-            // 1. Bersihkan dulu jadwal OFF kurir ini
-            currentJadwal.forEach(day => {
-                let offs = day.off ? day.off.split(',').map(n => n.trim()).filter(n => n !== "") : [];
-                if (offs.includes(kurir)) {
-                    offs = offs.filter(n => n !== kurir);
-                    day.off = offs.join(', ');
-                }
-            });
-            
-            // 2. Cari slot kosong (max 2 orang/hari)
-            let availableDays = currentJadwal.filter(day => {
-                const count = day.off ? day.off.split(',').filter(n => n.trim() !== "").length : 0;
-                return count < 2; 
-            });
-        
-            // 3. Acak (Shuffle)
-            for (let i = availableDays.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [availableDays[i], availableDays[j]] = [availableDays[j], availableDays[i]];
-            }
-        
-            // 4. Masukkan nama kurir
-            let assignedCount = 0;
-            for (let i = 0; i < availableDays.length && assignedCount < offCount; i++) {
-                let currentOffs = availableDays[i].off ? availableDays[i].off.split(',').map(n => n.trim()).filter(n => n !== "") : [];
-                currentOffs.push(kurir);
-                availableDays[i].off = currentOffs.join(', ');
-                assignedCount++;
-            }
-        
-            // 5. Simpan ke database
-            await saveFirestoreJadwal(ym);
-            
-            // --- BAGIAN PENTING AGAR ANGKA TIDAK BERUBAH ---
-            // Update attribute data-original-value dengan angka yang baru disimpan
-            selectEl.setAttribute('data-original-value', assignedCount); 
-            
-            if (assignedCount < offCount) {
-                 popupShow(false, 'Peringatan', `Hanya berhasil mengacak ${assignedCount} hari karena slot penuh.`);
-            } else {
-                 popupShow(true, 'Berhasil Diacak', `${kurir}: ${assignedCount} hari OFF tersimpan.`);
-            }
-            
-            button.style.display = 'none'; // Sembunyikan tombol simpan karena data sudah sinkron
-            quickSync(); // Refresh tampilan semua tabel
-        };
-
-        function quickSync(){
-            const ym=document.getElementById('monthPick').value;
-            renderJadwal(ym);
-            renderAbsensi(ym);
-            renderRekap(ym);
-            renderApproval();
-            populateCourierDropdown();
-            populateDelKurirDropdown();
-            renderAbsensiSettingsTable();
-        }
-
-        async function saveFirestoreJadwal(ym){
-            if(jadwalData[ym]) { await JADWAL_COLLECTION.doc(ym).set({data:jadwalData[ym]}); }
-        }
-
-        async function saveKurirList(){
-            await MASTER_DOC.set({kurirList,updated:new Date().toISOString()});
-        }
-
-        function listenMasterKurir(){
-            MASTER_DOC.onSnapshot(async doc=>{
-                if(doc.exists){
-                    kurirList = Array.isArray(doc.data().kurirList) ? doc.data().kurirList : [];
-                    quickSync();
-                }else{
-                    quickSync();
-                }
-            });
-        }
-
-        function listenJadwal(ym){
-            if(unsubJadwal) { unsubJadwal(); unsubJadwal=null; }
-            unsubJadwal = JADWAL_COLLECTION.doc(ym).onSnapshot(async doc=>{
-                if(doc.exists){
-                    jadwalData[ym] = doc.data().data || [];
-                    quickSync();
-                }else{
-                    generateFairOffForMonth(ym);
-                    await saveFirestoreJadwal(ym);
-                    popupShow(true,'Jadwal dibuat','Bulan '+ym);
-                }
-            });
-        }
-
-        function listenPengajuan(){
-            PENGAJUAN_COLLECTION.orderBy('created','desc').onSnapshot(snap=>{
-                pengajuanCache = [];
-                snap.forEach(doc=>{
-                    const d = doc.data();
-                    pengajuanCache.push({ id: doc.id, ...d });
-                });
-                renderApproval();
-            });
-        }
-
-        // Tabs
-        document.querySelectorAll('.topbar .btn[data-tab]').forEach(b=>{
-            b.onclick=()=>{
-                document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
-                document.querySelectorAll('.topbar .btn[data-tab]').forEach(bb=>bb.classList.remove('active'));
-                document.getElementById(b.dataset.tab).classList.add('active');
-                b.classList.add('active');
-            }
-        });
-
-        // Admin Actions
-        document.getElementById('btn-regen').onclick = async () => {
-            const confirmRegen = confirm("Apakah Anda yakin ingin melakukan regenerasi jadwal OFF? Tindakan ini akan menghapus jadwal OFF yang ada dan membuat yang baru secara acak.");
-            if (confirmRegen) {
-                const ym = document.getElementById('monthPick').value;
-                if (!ym) return;
-                generateFairOffForMonth(ym);
-                await saveFirestoreJadwal(ym);
-                popupShow(true, 'Regenerasi selesai', ym);
-            }
-        };
-
-        document.getElementById('btn-add-kurir').onclick = async () => {
-            const nama = document.getElementById('addKurirName').value.trim();
-            if (nama) {
-                if (!kurirList.includes(nama)) {
-                    if (confirm(`Yakin ingin menambahkan kurir baru dengan nama "${nama}"?`)) {
-                        kurirList.push(nama);
-                        await saveKurirList();
-                        popupShow(true, 'Kurir ditambahkan', nama);
-                        document.getElementById('addKurirName').value = '';
-                    }
-                } else {
-                    popupShow(false, 'Gagal', 'Kurir sudah ada.');
-                }
-            } else {
-                popupShow(false, 'Gagal', 'Nama tidak boleh kosong.');
-            }
-        };
-
-        document.getElementById('btn-del-kurir').onclick = async () => {
-            const nama = document.getElementById('delKurirSelect').value;
-            if (nama) {
-                if (confirm(`Yakin ingin menghapus kurir "${nama}"?`)) {
-                    const idx = kurirList.indexOf(nama);
-                    if (idx > -1) {
-                        kurirList.splice(idx, 1);
-                        await saveKurirList();
-                        popupShow(true, 'Kurir dihapus', nama);
-                    }
-                }
-            }
-        };
-        
-        document.getElementById('searchBtn').onclick = () => {
-            const selectedCourier = document.getElementById('kurirDropdown').value;
-            const selectedDate = document.getElementById('dateInput').value;
-            const ym = document.getElementById('monthPick').value;
-            renderAbsensi(ym, selectedCourier, selectedDate);
-        };
-        
-        // Init
-        const monthPick = document.getElementById('monthPick');
-        monthPick.value = new Date().toISOString().slice(0,7);
-        listenMasterKurir();
-        listenPengajuan();
-        listenJadwal(monthPick.value);
-        monthPick.onchange = ()=> {
-            document.getElementById('kurirDropdown').value = '';
-            document.getElementById('dateInput').value = '';
-            listenJadwal(monthPick.value);
-        };
-    </script>
+    }
+    function getDist(lat1, lon1, lat2, lon2) {
+        const R = 6371000, p = Math.PI/180;
+        const a = 0.5 - Math.cos((lat2-lat1)*p)/2 + Math.cos(lat1*p)*Math.cos(lat2*p)*(1-Math.cos((lon2-lon1)*p))/2;
+        return R * 2 * Math.asin(Math.sqrt(a));
+    }
+    
+    function saveName() { localStorage.setItem('user_nama_v13', document.getElementById('selKurir').value); }
+    
+    init();
+    clock();
+</script>
 </body>
 </html>
