@@ -1144,6 +1144,25 @@
         text-decoration: underline;
         margin-top: 2px;
     }
+    .badge-admin {
+        background: #e3f2fd !important;
+        color: #1976d2 !important;
+        border: 1px solid #bbdefb;
+    }
+    
+    .badge-ol {
+        background: #fff3e0 !important;
+        color: #e65100 !important;
+        border: 1px solid #ffe0b2;
+    }
+    
+    .status-badge {
+        padding: 4px 8px;
+        border-radius: 6px;
+        font-size: 11px;
+        font-weight: bold;
+        display: inline-block;
+    }
   </style>
 </head>
 <body>
@@ -1185,49 +1204,58 @@
       
       <button id="btnLogout" class="btn danger">Logout</button>
       
-          <nav class="tab" id="adminTabNav">
-                <button data-tab="dashboardTab" class="active">
-                      <svg viewBox="0 0 24 24" class="nav-icon"><path d="M12 20V10M18 20V4M6 20v-4"/></svg>
-                      Dashboard
-                  </button>
-                <button data-tab="kurirTab">
-                      <svg viewBox="0 0 24 24" class="nav-icon"><circle cx="12" cy="7" r="4"/><path d="M10 17v3H4v-3c0-2 2-3 4-3h4c2 0 4 1 4 3v3h-6"/></svg>
-                      Kurir
-                  </button>
-                <button data-tab="kpiKurirTab"> 
-                      <svg viewBox="0 0 24 24" class="nav-icon"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
-                      KPI Kurir
-                  </button>
-                <button data-tab="notaTab">
-                      <svg viewBox="0 0 24 24" class="nav-icon"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M8 15h8M8 11h8"/></svg>
-                      Nota
-                  </button>
-                <button data-tab="ongkirTab">
-                      <svg viewBox="0 0 24 24" class="nav-icon"><path d="M10 21v-7h4v7M12 14v7M2 8h20M5 8V4h4M19 8V4h-4M12 2v2M2 12h2M20 12h2"/></svg>
-                      Ongkir
-                  </button>
-                <button data-tab="testimoniTab">
-                      <svg viewBox="0 0 24 24" class="nav-icon"><path d="M12 1l3 7h7l-6 4 3 7-6-4-6 4 3-7-6-4h7z"/></svg>
-                      Testimoni
-                  </button>
-                <button data-tab="mitraTab">
-                      <svg viewBox="0 0 24 24" class="nav-icon"><path d="M22 10s-3 3-5 5L8 9l5-5c2 2 5-3 5-3m-6 4L9 8 3 14l5 6 6-5z"/></svg>
-                      Mitra
-                  </button>
-                <button data-tab="laporanTab">
-                      <svg viewBox="0 0 24 24" class="nav-icon"><path d="M18 20V6H6v14m12 0H6M4 22h16M12 18V6"/></svg>
-                      Laporan
-                  </button>
-                <button onclick="window.location.href='absensi-kurir-sahabatku.html'">
-                      <svg viewBox="0 0 24 24" class="nav-icon"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2zM12 10v4M15 12h-6"/></svg>
-                      Absensi Kurir
-                  </button>
-                <button data-tab="settingsTab">
-                      <svg viewBox="0 0 24 24" class="nav-icon"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V22a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 20.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H2a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V2a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V12h.09a1.65 1.65 0 0 0 1.51 1z"/></svg>
-                      Pengaturan
-                </button>
-      </nav>
-      </nav>
+          <nav class="tab" id="adminTabNav">
+              <button data-tab="dashboardTab" class="active">
+                  <svg viewBox="0 0 24 24" class="nav-icon"><path d="M12 20V10M18 20V4M6 20v-4"/></svg>
+                  Dashboard
+              </button>
+          
+              <button data-tab="kurirTab">
+                  <svg viewBox="0 0 24 24" class="nav-icon"><circle cx="12" cy="7" r="4"/><path d="M10 17v3H4v-3c0-2 2-3 4-3h4c2 0 4 1 4 3v3h-6"/></svg>
+                  Kurir
+              </button>
+          
+              <button data-tab="kpiKurirTab">
+                  <svg viewBox="0 0 24 24" class="nav-icon"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+                  KPI Kurir
+              </button>
+          
+              <button data-tab="notaTab">
+                  <svg viewBox="0 0 24 24" class="nav-icon"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M8 15h8M8 11h8"/></svg>
+                  Nota
+              </button>
+          
+              <button data-tab="ongkirTab">
+                  <svg viewBox="0 0 24 24" class="nav-icon"><path d="M10 21v-7h4v7M12 14v7M2 8h20M5 8V4h4M19 8V4h-4M12 2v2M2 12h2M20 12h2"/></svg>
+                  Ongkir
+              </button>
+          
+              <button data-tab="testimoniTab">
+                  <svg viewBox="0 0 24 24" class="nav-icon"><path d="M12 1l3 7h7l-6 4 3 7-6-4-6 4 3-7-6-4h7z"/></svg>
+                  Testimoni
+              </button>
+          
+              <button data-tab="mitraTab">
+                  <svg viewBox="0 0 24 24" class="nav-icon"><path d="M22 10s-3 3-5 5L8 9l5-5c2 2 5-3 5-3m-6 4L9 8 3 14l5 6 6-5z"/></svg>
+                  Mitra
+              </button>
+          
+              <button data-tab="laporanTab">
+                  <svg viewBox="0 0 24 24" class="nav-icon"><path d="M18 20V6H6v14m12 0H6M4 22h16M12 18V6"/></svg>
+                  Laporan
+              </button>
+          
+              <button onclick="window.location.href='absensi-kurir-sahabatku.html'">
+                  <svg viewBox="0 0 24 24" class="nav-icon"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2zM12 10v4M15 12h-6"/></svg>
+                  Absensi Kurir
+              </button>
+          
+              <button data-tab="settingsTab">
+                  <svg viewBox="0 0 24 24" class="nav-icon"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V22a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 20.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H2a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V2a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V12h.09a1.65 1.65 0 0 0 1.51 1z"/></svg>
+                  Pengaturan
+              </button>
+          </nav>
+     </nav>
     <div id="dashboardTab" class="tabContent">
       <h3>Dashboard Overview</h3>
         
@@ -1405,6 +1433,7 @@
             <tr>
               <th>No Nota</th>
               <th>Kurir</th>
+              <th>Status</th>
               <th>Fraud Status</th> <th>Tanggal</th>
               <th>Ongkir</th>
               <th>Tambahan</th>
@@ -1426,6 +1455,7 @@
           </div>
           <div class="nota-meta">
             <p><strong>Kurir:</strong> <span id="notaKurir"></span></p>
+            <p><strong>Status:</strong> <span id="notaStatus" style="font-weight:800; color:var(--primary-dark);"></span></p>
             <p><strong>No Nota:</strong> <span id="notaNo"></span></p>
             <p><strong>Tanggal:</strong> <span id="notaTanggal"></span></p>
           </div>
@@ -2602,8 +2632,9 @@
                 // 1. ISI DATA NOTA
                 el("notaNo").textContent = nota.noNota || "-";
                 el("notaTanggal").textContent = new Date(nota.createdAt).toLocaleString('id-ID');
-                el("notaKurir").textContent = kurir;
                 
+                el("notaKurir").textContent = kurir;
+                el("notaStatus").textContent = nota.statusOrder || "Admin";
                 el("notaItems").innerHTML = nota.items ? nota.items.map((item, i) => `
                     <tr>
                       <td>${i+1}</td>
@@ -2815,6 +2846,8 @@
             el('allNotaList').innerHTML = filtered.length > 0 ? filtered.map(nota => {
                 
                 // ⭐️ LOGIKA BARU UNTUK FRAUD STATUS
+                const statusOrder = nota.statusOrder || 'Admin'; 
+                const statusClass = statusOrder.includes('OL') ? 'badge-ol' : 'badge-admin';
                 const isSuspicious = nota.isSuspicious === true; 
                 const fraudStatus = isSuspicious ? 'Mencurigakan' : 'Aman';
                 const badgeClass = isSuspicious ? 'status-danger' : 'status-success';
@@ -2825,6 +2858,11 @@
                   <tr>
                     <td>${nota.noNota || ''}</td>
                     <td>${nota.kurir || ''}</td>
+                    <td>
+                        <span class="status-badge ${statusClass}">
+                            ${statusOrder}
+                        </span>
+                    </td>
                     
                     <td style="text-align: center;">
                         <span class="status-badge ${badgeClass}" style="white-space: nowrap;">
