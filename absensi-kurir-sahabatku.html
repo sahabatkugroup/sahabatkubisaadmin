@@ -1,503 +1,375 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ABSEN KEHADIRAN SAHABATKU</title>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+    <title>Jadwal Sahabatku</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script defer src="https://cdn.jsdelivr.net/npm/@vladmandic/face-api/dist/face-api.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
     <style>
-        :root { --primary: #00CAFF; --dark: #0f172a; --bg: #f8fafc; --success: #10b981; --error: #ef4444; }
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
-
-        body { 
-            font-family: 'Plus Jakarta Sans', sans-serif; 
-            background: var(--dark); 
-            margin: 0; 
-            display: flex; 
-            justify-content: center; 
-            /* Menggunakan dvh agar pas dengan dynamic toolbar browser HP */
-            height: 100dvh; 
-            width: 100vw;
-            overflow: hidden;
+        :root { 
+            --primary: #0ea5e9; --bg: #f8fafc; --card: #ffffff; --text: #0f172a; 
+            --border: rgba(0,0,0,0.04); --inner-card: #f1f5f9; 
         }
-
-        .app-container { 
-            width: 100%; 
-            max-width: 480px; 
-            height: 100%; 
-            background: var(--bg); 
-            display: flex; 
-            flex-direction: column; 
-            /* Mengizinkan scroll jika konten meluap di HP kecil */
-            overflow-y: auto;
-            position: relative;
+        .dark-mode { 
+            --bg: #020617; --card: #0f172a; --text: #f1f5f9; 
+            --border: rgba(255,255,255,0.06); --inner-card: #1e293b; 
         }
         
-        header { 
-            padding: 15px 20px; 
-            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); 
-            color: white; 
-            border-bottom: 4px solid var(--primary); 
-            flex-shrink: 0;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
-        .greeting h2 { margin: 0; font-size: 16px; font-weight: 800; }
-        #live-clock { font-size: 12px; font-weight: 700; color: var(--primary); margin-top: 2px; display: block; }
-
-        .main-content { 
-            padding: 15px; 
-            flex: 1; 
-            display: flex; 
-            flex-direction: column; 
-            gap: 15px;
-            min-height: min-content; /* Memastikan isi tidak terpotong */
-        }
-        /* Animasi Lingkaran Berputar */
-        .loader {
-            width: 48px;
-            height: 48px;
-            border: 5px solid #FFF;
-            border-bottom-color: var(--primary); /* Warna biru cerah Anda */
-            border-radius: 50%;
-            display: inline-block;
-            box-sizing: border-box;
-            animation: rotation 1s linear infinite;
-        }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); color: var(--text); transition: background 0.5s ease; overflow-x: hidden; }
         
-        @keyframes rotation {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        
-        /* Memperbaiki tampilan overlay loading */
-        #loading-overlay {
-            display: none;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            background: rgba(15, 23, 42, 0.9); /* Gelap transparan */
-            color: white;
-            position: fixed;
-            inset: 0;
-            z-index: 9999;
-        }
-        .camera-view { 
-            width: 100%; 
-            aspect-ratio: 3/4; /* Menjaga bentuk kamera tetap kotak panjang */
-            background: #000; 
-            border-radius: 15px; 
-            overflow: hidden; 
-            border: 3px solid white; 
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-            position: relative;
-            flex-shrink: 0; /* Mencegah kamera mengecil */
-        }
-        #v, #p { width: 100%; height: 100%; object-fit: cover; }
-        #v { transform: scaleX(-1); }
-
-        .gps-status { 
-            position: absolute; top: 10px; left: 10px; padding: 6px 12px; 
-            border-radius: 8px; font-size: 9px; font-weight: 800; 
-            backdrop-filter: blur(10px); z-index: 10;
-        }
-        .active { background: rgba(16, 185, 129, 0.9); color: white; }
-        .inactive { background: rgba(239, 68, 68, 0.9); color: white; }
-
-        .controls { 
-            width: 100%; 
-            padding: 10px 0 20px; 
-            flex-shrink: 0; 
-        }
-        .btn-snap.ready { border-color: var(--primary); box-shadow: 0 5px 15px rgba(0,202,255,0.3); color: var(--primary); }
-        #instruction { font-size: 11px; font-weight: 700; margin-top: 10px; transition: 0.3s; 
-        }
-        /* DROPDOWN MODERN */
-        .select-wrapper { position: relative; margin-bottom: 12px; }
-        .select-wrapper i {
-            position: absolute; left: 15px; top: 50%;
-            transform: translateY(-50%); color: var(--primary);
-            z-index: 10; font-size: 18px;
-        }
-        select { 
-            width: 100%; padding: 16px 16px 16px 45px; 
-            border-radius: 16px; border: 2px solid #e2e8f0; 
-            font-size: 15px; font-weight: 700; background: white; 
-            color: var(--dark); appearance: none; cursor: pointer;
-        }
-        
-        .btn-back {
-            width: 35px; height: 35px; background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 8px;
-            color: white; display: flex; align-items: center; justify-content: center;
-        }
-        
-        .btn-snap { 
-            width: 70px; height: 70px; background: white; border-radius: 50%; 
-            border: 6px solid var(--primary); display: flex; 
-            align-items: center; justify-content: center; margin: 10px auto; 
-            box-shadow: 0 5px 15px rgba(0,202,255,0.3);
-            cursor: pointer;
-        }
-        .btn-snap:disabled { opacity: 0.5; border-color: #cbd5e1; }
-
-        .btn-group { display: flex; gap: 10px; width: 100%; }
-        .btn-send { 
-            flex: 2; padding: 18px; border-radius: 12px; border: none; 
-            background: var(--primary); color: var(--dark); font-size: 14px; 
-            font-weight: 800; text-transform: uppercase;
-        }
-        .btn-retry { 
-            flex: 1; padding: 18px; border-radius: 12px; 
-            border: 2px solid #cbd5e1; background: white; color: var(--error); font-weight: 800;
+        .glass { 
+            background: var(--card); border: 1px solid var(--border); border-radius: 32px; 
+            box-shadow: 0 10px 30px -5px rgba(0,0,0,0.05); transition: 0.3s;
         }
 
-        /* OVERLAYS */
-        #loading-overlay, #success-view, #time-blocked {
-            position: fixed; inset: 0; z-index: 9999;
-            display: none; flex-direction: column; align-items: center; justify-content: center;
+        /* --- DYNAMIC ISLAND NOTIFICATION --- */
+        #toast { 
+            position: fixed; top: -100px; left: 50%; transform: translateX(-50%); 
+            z-index: 9999; width: auto; min-width: 200px; max-width: 90%;
+            padding: 8px 8px 8px 18px; border-radius: 50px; display: flex; align-items: center; gap: 12px; 
+            background: #0f172a; color: white; opacity: 0;
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.4);
+            pointer-events: none;
         }
-        #loading-overlay { background: rgba(15,23,42,0.95); color: white; }
-        #success-view { background: var(--success); color: white; padding: 20px; text-align: center; }
-        #time-blocked { background: var(--dark); color: white; padding: 30px; text-align: center; }
+        .dark-mode #toast { background: #ffffff; color: #0f172a; }
 
-        .report-card { 
-            background: rgba(0,0,0,0.1); padding: 20px; border-radius: 15px; 
-            width: 100%; max-width: 320px; margin: 20px 0; border: 1px dashed rgba(255,255,255,0.5);
+        /* --- JADWAL CARD STYLING --- */
+        .date-badge {
+            min-width: 55px; height: 75px; display: flex; flex-direction: column; 
+            align-items: center; justify-content: center; border-radius: 20px;
+            background: var(--inner-card); transition: 0.3s;
         }
+        .is-today-badge { background: #0ea5e9 !important; color: white !important; box-shadow: 0 10px 20px rgba(14, 165, 233, 0.3); }
 
-        canvas { display: none; }
+        .names-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; width: 100%; }
+        .name-tag {
+            background: var(--inner-card); padding: 12px 14px; border-radius: 18px;
+            display: flex; align-items: center; justify-content: space-between;
+            border-left: 4px solid #0ea5e9; animation: slideIn 0.4s ease-out forwards;
+        }
+        .name-tag:only-child { grid-column: span 2; }
+        @keyframes slideIn { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
 
-        /* Scrollbar styling */
-        .app-container::-webkit-scrollbar { width: 4px; }
-        .app-container::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        /* --- NAVIGATION --- */
+        .nav-container { 
+            position: fixed; bottom: 25px; left: 50%; transform: translateX(-50%);
+            width: 90%; max-width: 400px; background: var(--card); 
+            border: 1px solid var(--border); border-radius: 40px; padding: 10px;
+            display: flex; justify-content: space-around; align-items: center; z-index: 1000;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1); backdrop-filter: blur(10px);
+        }
+        .nav-item { width: 50px; height: 50px; display: flex; align-items: center; justify-content: center; border-radius: 50%; color: #94a3b8; transition: 0.3s; }
+        .nav-item.active { color: #0ea5e9; background: rgba(14, 165, 233, 0.1); }
+        .fab { width: 60px; height: 60px; background: #0ea5e9; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px; margin-bottom: 30px; box-shadow: 0 10px 20px rgba(14, 165, 233, 0.3); }
+
+        .tab-content { display: none; }
+        .tab-content.active { display: block; animation: fadeIn 0.5s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        input, textarea { width: 100%; background: var(--inner-card); border: 1px solid var(--border); border-radius: 20px; padding: 16px; color: var(--text); font-weight: 600; outline: none; transition: 0.3s; }
+        .type-card { padding: 22px 10px; border-radius: 26px; border: 2px solid var(--border); text-align: center; cursor: pointer; transition: 0.4s; background: var(--card); }
+        .type-card.selected { background: #0ea5e9; color: white; border-color: #0ea5e9; transform: scale(1.05) translateY(-5px); box-shadow: 0 15px 30px -5px rgba(14, 165, 233, 0.4); }
     </style>
 </head>
-<body>
+<body class="max-w-md mx-auto px-6 pb-40 text-sm">
 
-<div id="time-blocked">
-    <i class="fa-solid fa-clock-rotate-left" style="font-size:60px; color:var(--error); margin-bottom:20px;"></i>
-    <h1>AKSES DITUTUP</h1>
-    <p>Mohon Maaf, aplikasi absensi hanya dapat diakses pada jam<br><strong>05:00 - 21:00 WIB</strong></p>
-</div>
-
-<div id="loading-overlay">
-    <span class="loader"></span>
-    <p id="load-text" style="margin-top: 20px; font-weight: 800; letter-spacing: 1px;">PROSES...</p>
-</div>
-
-<div id="success-view">
-    <i class="fa-solid fa-circle-check" style="font-size: 70px;"></i>
-    <h2 style="font-weight: 800; margin: 15px 0;">ABSENSI BERHASIL</h2>
-    <div class="report-card">
-        <div><label style="display:block; font-size:10px; opacity:0.8; font-weight:800;">NAMA KURIR</label><span id="res-nama" style="font-weight:800; font-size:18px;">-</span></div>
-        <div style="margin-top:15px;"><label style="display:block; font-size:10px; opacity:0.8; font-weight:800;">WAKTU ABSEN</label><span id="res-waktu" style="font-weight:800; font-size:18px;">-</span></div>
-    </div>
-    <button onclick="location.reload()" style="padding: 15px 50px; border-radius: 50px; border:none; font-weight:800; color:var(--success); background:white;">KEMBALI</button>
-</div>
-
-<div class="app-container">
-    <header style="display: flex; justify-content: space-between; align-items: center;">
-        <div class="greeting">
-            <h2 id="today">Memuat...</h2>
-            <span id="live-clock">00:00:00 WIB</span>
-        </div>
-        <button class="btn-back" onclick="window.location.href='index.html'">
-            <i class="fa-solid fa-chevron-left"></i>
-        </button>
-    </header>
-
-    <div class="main-content">
-        <div class="camera-view">
-            <div id="gps-box" class="gps-status inactive">TUNGGU...</div>
-            <video id="v" autoplay playsinline></video>
-            <img id="p" style="display:none;">
-        </div>
-
-        <div id="ui-1" style="text-align: center;">
-            <button class="btn-snap" id="btnSnap" onclick="takePhoto()" disabled>
-                <i class="fa-solid fa-camera" style="font-size:28px; color:var(--primary)"></i>
-            </button>
-            <p id="instruction" style="font-size: 11px; font-weight: 700; color: #64748b; margin-top: 10px;">
-                MENGHUBUNGKAN...
-            </p>
-        </div>
-            <div id="ui-2" style="display:none;">
-                <div class="select-wrapper">
-                    <i class="fa-solid fa-clock"></i>
-                    <select id="selStatus">
-                        <option value="MASUK">ABSEN MASUK</option>
-                        <option value="PULANG">ABSEN PULANG</option>
-                    </select>
-                </div>
-            
-                <div class="select-wrapper">
-                    <i class="fa-solid fa-user-circle"></i>
-                    <select id="selKurir" onchange="saveName()">
-                        <option value="">Pilih Nama Kurir...</option>
-                    </select>
-                </div>
-                <div class="btn-group">
-                    <button class="btn-retry" onclick="resetCam()">ULANG</button>
-                    <button class="btn-send" onclick="submitData()">KIRIM DATA</button>
-                </div>
+    <div id="toast">
+        <div id="toastContent" class="flex items-center gap-3">
+            <div id="toastIcon" class="w-8 h-8 rounded-full flex items-center justify-center bg-sky-500 text-white shadow-lg text-[10px]">
+                <i class="fa-solid fa-check"></i>
+            </div>
+            <div class="pr-4">
+                <p id="toastTitle" class="text-[8px] font-black uppercase tracking-[2px] opacity-60 leading-none mb-1">System</p>
+                <p id="toastMsg" class="text-[11px] font-bold whitespace-nowrap">Data Terupdate</p>
             </div>
         </div>
     </div>
-</div>
 
-<canvas id="c"></canvas>
+    <div id="loading" class="fixed inset-0 bg-slate-900 z-[9999] flex flex-col items-center justify-center gap-4">
+        <div class="w-12 h-12 border-4 border-sky-500/20 border-t-sky-500 rounded-full animate-spin"></div>
+        <p class="text-[10px] font-black text-sky-500 uppercase tracking-[5px]">loading</p>
+    </div>
 
-<script>
-    const URL_APPS = "https://script.google.com/macros/s/AKfycbwntZzvURlu7mxm0UyE_HDKyBTyLruRCO2YzzNr_A3kr7vkUpMLp_7O60o1ElTRMfI4ZQ/exec";
-    const KANTOR = { lat: -6.4679637, lng: 108.297226, rad: 50 };
-    
-    let isGpsValid = false;
-    let isFaceValid = false;
-    let modelsLoaded = false;
-    let faceInterval;
-    
-    // 1. Load Model AI
-    async function loadModels() {
-        const loader = document.getElementById('loading-overlay');
-        const loadText = document.getElementById('load-text');
-        
-        loader.style.display = 'flex'; // Tampilkan loading berputar
-        loadText.innerText = "MENGUNDUH SENSOR WAJAH...";
-    
-        try {
-            const MODEL_URL = 'https://cdn.jsdelivr.net/npm/@vladmandic/face-api/model/';
-            await faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL);
-            
-            loader.style.display = 'none'; // Sembunyikan jika sudah selesai
-            modelsLoaded = true;
-            startFaceDetection();
-        } catch (e) {
-            loadText.innerText = "GAGAL MEMUAT SENSOR!";
-            console.error(e);
-        }
-    }
-    
-    function clock() {
-        const d = new Date();
-        const timeStr = d.toLocaleTimeString('id-ID', {hour12:false}) + " WIB";
-        document.getElementById('live-clock').innerText = timeStr;
-        document.getElementById('today').innerText = d.toLocaleDateString('id-ID', {weekday:'long', day:'numeric', month:'short'});
-        return timeStr;
-    }
-    setInterval(clock, 1000);
-    
-    async function init() {
-        const jam = new Date().getHours();
-        
-        // Aplikasi tidak bisa diakses sama sekali antara jam 02:00 pagi hingga 04:59 pagi
-        if (jam >= 2 && jam < 5) {
-            const blockView = document.getElementById('time-blocked');
-            blockView.querySelector('p').innerHTML = "Mohon Maaf, aplikasi absensi tidak aktif pada jam<br><strong>02:00 - 05:00 WIB</strong>";
-            blockView.style.display = 'flex';
-            return;
-        }
-        
-        try {
-            const stream = await navigator.mediaDevices.getUserMedia({
-                video: { facingMode: 'user', width: { ideal: 640 }, height: { ideal: 480 } }
-            });
-            document.getElementById('v').srcObject = stream;
-            
-            const res = await fetch(URL_APPS);
-            const data = await res.json();
-            const sel = document.getElementById('selKurir');
-            sel.innerHTML = '<option value="">Pilih Nama Kurir...</option>';
-            data.daftarKurir.forEach(n => sel.innerHTML += `<option value="${n}">${n}</option>`);
-            
-            const saved = localStorage.getItem('user_nama_v13');
-            if(saved) sel.value = saved;
-    
-            trackGPS();
-            loadModels(); 
-        } catch(e) { 
-            alert("Mohon izinkan kamera dan lokasi untuk absen!"); 
-        }
-    }
-    
-    // 2. Loop Deteksi Wajah
-    async function startFaceDetection() {
-        const video = document.getElementById('v');
-        modelsLoaded = true;
-    
-        // Simpan ke variabel faceInterval
-        faceInterval = setInterval(async () => {
-            if (video.paused || video.ended || !modelsLoaded) return;
-    
-            const detections = await faceapi.detectAllFaces(video, new faceapi.TinyFaceDetectorOptions());
-            isFaceValid = detections.length > 0;
-            
-            syncButtonAndStatus(); 
-        }, 500);
-    }
-    
-    function trackGPS() {
-        navigator.geolocation.watchPosition(p => {
-            const d = getDist(p.coords.latitude, p.coords.longitude, KANTOR.lat, KANTOR.lng);
-            isGpsValid = (d <= KANTOR.rad);
-            
-            const box = document.getElementById('gps-box');
-            if(!isGpsValid) {
-                box.className = "gps-status inactive"; 
-                box.innerText = "DILUAR KANTOR ("+Math.round(d)+"m)";
-            }
-            syncButtonAndStatus();
-        }, null, {enableHighAccuracy:true});
-    }
-    
-    function syncButtonAndStatus() {
-        const btn = document.getElementById('btnSnap');
-        const box = document.getElementById('gps-box');
-        
-        if (!isGpsValid) {
-            btn.disabled = true;
-            btn.classList.remove('ready');
-            return; // Jika lokasi salah, stop di sini
-        }
-    
-        if (isFaceValid) {
-            box.className = "gps-status active";
-            box.innerText = "SIAP ABSEN (WAJAH TERDETEKSI)";
-            btn.disabled = false;
-            btn.classList.add('ready');
-        } else {
-            box.className = "gps-status inactive";
-            box.innerText = "HADAPKAN WAJAH KE KAMERA";
-            btn.disabled = true;
-            btn.classList.remove('ready');
-        }
-    }
-    
-    function takePhoto() {
-        // BERHENTIKAN DETEKSI WAJAH DI SINI
-        clearInterval(faceInterval);
-        console.log("Deteksi wajah dihentikan karena foto sudah diambil");
-    
-        const v = document.getElementById('v'), c = document.getElementById('c'), p = document.getElementById('p');
-        c.width = 600; c.height = 800;
-        const ctx = c.getContext('2d');
-        
-        // ... sisa kode takePhoto Anda (sama seperti sebelumnya) ...
-        const vW = v.videoWidth, vH = v.videoHeight;
-        const ratio = 3/4;
-        let sW = vW, sH = vH, sX = 0, sY = 0;
-        if (vW / vH > ratio) { sW = vH * ratio; sX = (vW - sW) / 2; } 
-        else { sH = vW / ratio; sY = (vH - sH) / 2; }
-        ctx.translate(c.width, 0); ctx.scale(-1, 1);
-        ctx.drawImage(v, sX, sY, sW, sH, 0, 0, c.width, c.height);
-        
-        p.src = c.toDataURL('image/jpeg', 0.5);
-        p.style.display = 'block'; v.style.display = 'none';
-        document.getElementById('ui-1').style.display = 'none';
-        document.getElementById('ui-2').style.display = 'block';
-    }
-    
-    function resetCam() {
-        document.getElementById('v').style.display = 'block';
-        document.getElementById('p').style.display = 'none';
-        document.getElementById('ui-1').style.display = 'block';
-        document.getElementById('ui-2').style.display = 'none';
-        document.getElementById('gps-box').style.display = 'block';
-    
-        // JALANKAN LAGI DETEKSI WAJAH
-        startFaceDetection(); 
-    }
-    async function submitData() {
-        const n = document.getElementById('selKurir').value;
-        const s = document.getElementById('selStatus').value;
-        const jam = new Date().getHours();
-        
-        if(!n) return alert("Pilih Nama Kurir terlebih dahulu!");
-    
-        // --- LOGIKA VALIDASI JADWAL OPERASIONAL ---
-        if (s === "MASUK") {
-            if (jam < 5 || jam >= 20) {
-                return alert("Gagal! Absen MASUK hanya diperbolehkan antara jam 05:00 s/d 20:00 WIB.");
-            }
-        } else if (s === "PULANG") {
-            const bolehPulang = (jam >= 14 || jam < 2);
-            if (!bolehPulang) {
-                return alert("Gagal! Absen PULANG hanya diperbolehkan antara jam 14:00 s/d 02:00 WIB.");
+    <header class="pt-12 pb-8 flex justify-between items-center">
+        <div>
+            <p class="text-[10px] font-bold text-sky-500 uppercase tracking-[4px] mb-1">Dashboard</p>
+            <h1 class="text-4xl font-[900] tracking-tighter">Sahabat<span class="text-sky-500">ku.</span></h1>
+        </div>
+        <button onclick="document.body.classList.toggle('dark-mode')" class="w-14 h-14 glass flex items-center justify-center text-sky-500 text-xl active:scale-90">
+            <i class="fa-solid fa-circle-half-stroke"></i>
+        </button>
+    </header>
+
+    <div class="grid grid-cols-2 gap-4 mb-8">
+        <div class="glass p-6">
+            <p class="text-[9px] font-black opacity-30 uppercase tracking-widest mb-1">Squad Team</p>
+            <h2 id="statKurir" class="text-3xl font-[900]">0</h2>
+        </div>
+        <div class="glass p-6 border-l-4 border-sky-500">
+            <p class="text-[9px] font-black text-sky-500 uppercase tracking-widest mb-1">Off Today</p>
+            <h2 id="statOff" class="text-3xl font-[900] text-sky-500">0</h2>
+        </div>
+    </div>
+
+    <main>
+        <div class="mb-6 flex justify-between items-center px-2">
+            <h3 class="text-[10px] font-black uppercase tracking-[3px] opacity-30">Operational Calendar</h3>
+            <div class="glass px-4 py-2 flex items-center gap-2">
+                <i class="fa-solid fa-calendar text-sky-500 text-xs"></i>
+                <input type="month" id="monthPick" onchange="render()" class="bg-transparent text-xs font-bold outline-none p-0 border-none w-24">
+            </div>
+        </div>
+
+        <section id="tab-jadwal" class="tab-content active space-y-4"></section>
+        <section id="tab-rekap" class="tab-content space-y-3"></section>
+
+        <section id="tab-form" class="tab-content">
+            <div class="glass p-8 space-y-6">
+                <div class="text-center mb-4">
+                    <h2 class="text-2xl font-[900] tracking-tight">E-Submission</h2>
+                    <p class="text-[10px] opacity-40 font-bold uppercase tracking-widest">Digital Request</p>
+                </div>
+                
+                <div class="grid grid-cols-3 gap-3">
+                    <div onclick="selectType('Tukar Off', this)" class="type-card selected">
+                        <i class="fa-solid fa-rotate mb-2 block text-xl"></i>
+                        <span class="text-[9px] font-bold uppercase">Tukar</span>
+                    </div>
+                    <div onclick="selectType('Sakit', this)" class="type-card">
+                        <i class="fa-solid fa-stethoscope mb-2 block text-xl"></i>
+                        <span class="text-[9px] font-bold uppercase">Sakit</span>
+                    </div>
+                    <div onclick="selectType('Izin', this)" class="type-card">
+                        <i class="fa-solid fa-file-signature mb-2 block text-xl"></i>
+                        <span class="text-[9px] font-bold uppercase">Izin</span>
+                    </div>
+                </div>
+
+                <div class="space-y-4 pt-4">
+                    <div onclick="openSheet()" class="w-full bg-[var(--inner-card)] p-4 rounded-[20px] flex justify-between items-center cursor-pointer border border-[var(--border)]">
+                        <span id="selectedNamaDisplay" class="font-bold opacity-40">Pilih Personel</span>
+                        <i class="fa-solid fa-chevron-down text-sky-500"></i>
+                    </div>
+                    <input type="date" id="pTgl">
+                    <textarea id="pKet" placeholder="Alasan tambahan..." rows="3"></textarea>
+                </div>
+
+                <button onclick="openConfirm()" class="w-full bg-sky-500 text-white py-5 rounded-[22px] font-[900] shadow-xl shadow-sky-500/20 active:scale-95 transition-all flex items-center justify-center gap-3">
+                    KIRIM DATA <i class="fa-solid fa-paper-plane text-xs"></i>
+                </button>
+            </div>
+        </section>
+    </main>
+
+    <nav class="nav-container">
+        <button onclick="switchTab('jadwal', this)" class="nav-item active"><i class="fa-solid fa-house-chimney"></i></button>
+        <button onclick="switchTab('form', this)" class="fab active:scale-90 transition-all"><i class="fa-solid fa-plus"></i></button>
+        <button onclick="switchTab('rekap', this)" class="nav-item"><i class="fa-solid fa-chart-simple"></i></button>
+    </nav>
+
+    <div id="sheetNama" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-[2000] hidden items-end" onclick="closeSheet()">
+        <div class="sheet-content glass w-full rounded-t-[40px] p-8 max-h-[70vh] overflow-y-auto translate-y-full transition-transform duration-500" onclick="event.stopPropagation()">
+            <div class="w-12 h-1 bg-slate-300 dark:bg-slate-700 rounded-full mx-auto mb-6"></div>
+            <div id="listNamaSheet" class="grid grid-cols-1 gap-3"></div>
+        </div>
+    </div>
+
+    <div id="confirmModal" class="fixed inset-0 bg-slate-950/90 backdrop-blur-md z-[3000] hidden items-center justify-center p-8">
+        <div id="confirmBox" class="glass p-10 w-full max-w-sm text-center opacity-0 scale-90">
+            <h3 class="text-2xl font-[900] mb-2">Kirim Sekarang?</h3>
+            <p class="text-[10px] opacity-50 mb-8 uppercase tracking-widest font-bold">Pastikan data sudah benar.</p>
+            <div class="flex gap-4">
+                <button onclick="closeConfirm()" class="flex-1 py-4 font-bold opacity-50">Batal</button>
+                <button onclick="processSubmit()" class="flex-1 py-4 bg-sky-500 text-white rounded-2xl font-black">Ya, Kirim</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = "https://script.google.com/macros/s/AKfycbyn3QGF16fBCxZqPANlRVFKfagLBHOC0Ue0Df9Cfc16fDFhAU2q8uMF2H5GHkU3wUJd/exec";
+        let db = { kurir: [], jadwal: [] };
+        let selectedJenis = "Tukar Off";
+        let selectedNama = "";
+
+        window.onload = () => {
+            const now = new Date();
+            document.getElementById('monthPick').value = now.toLocaleDateString('en-CA').slice(0, 7);
+            fetchData();
+        };
+
+        async function fetchData() {
+            try {
+                const res = await fetch(API_URL);
+                db = await res.json();
+                document.getElementById('loading').style.display = 'none';
+                render();
+                
+                // CEK STATUS HARI INI UNTUK NOTIFIKASI
+                const todayStr = new Date().toLocaleDateString('en-CA');
+                const rowToday = db.jadwal.find(r => r[0] && new Date(r[0]).toLocaleDateString('en-CA') === todayStr);
+                const namesToday = (rowToday && rowToday[2]) ? String(rowToday[2]).split(',').filter(n => n.trim()) : [];
+                
+                setTimeout(() => showDailyIsland(namesToday), 800);
+            } catch (e) { 
+                showIsland("Error", "Gagal menghubungkan ke server", "bg-red-500");
             }
         }
-    
-        // --- LOGIKA JEDA 3 JAM (DIPERBARUI) ---
-        const SEKARANG = new Date().getTime();
-        const JEDA_MS = 3 * 60 * 60 * 1000; // 3 Jam dalam milidetik
-    
-        if (s === "PULANG") {
-            const waktuMasukTerakhir = localStorage.getItem('last_absen_masuk_' + n);
-            
-            if (waktuMasukTerakhir) {
-                const selisih = SEKARANG - parseInt(waktuMasukTerakhir);
-                if (selisih < JEDA_MS) {
-                    // Menghitung sisa waktu dalam menit
-                    const sisaMenit = Math.ceil((JEDA_MS - selisih) / (60 * 1000));
-                    const sisaJam = Math.floor(sisaMenit / 60);
-                    const sisaMenitTampil = sisaMenit % 60;
-                    
-                    let pesan = `Gagal! Jeda minimal 3 jam dari absen masuk. \nSisa waktu: `;
-                    pesan += sisaJam > 0 ? `${sisaJam} jam ${sisaMenitTampil} menit.` : `${sisaMenitTampil} menit.`;
-                    
-                    return alert(pesan);
-                }
+
+        // --- ANIMASI MODERN NOTIFICATION (ISLAND STYLE) ---
+        function showDailyIsland(names) {
+            const toast = document.getElementById('toast');
+            const title = document.getElementById('toastTitle');
+            const msg = document.getElementById('toastMsg');
+            const icon = document.getElementById('toastIcon');
+
+            if(names.length > 0) {
+                title.innerText = "Info Libur Hari Ini";
+                msg.innerText = names.join(', ');
+                icon.innerHTML = '<i class="fa-solid fa-mug-hot"></i>';
+                icon.className = "w-8 h-8 rounded-full flex items-center justify-center bg-amber-500 text-white shadow-lg text-[10px]";
             } else {
-                return alert("Anda belum melakukan absen MASUK hari ini melalui perangkat ini.");
+                title.innerText = "Status Operasional";
+                msg.innerText = "Semua Personel Bertugas";
+                icon.innerHTML = '<i class="fa-solid fa-shield-check"></i>';
+                icon.className = "w-8 h-8 rounded-full flex items-center justify-center bg-emerald-500 text-white shadow-lg text-[10px]";
             }
+
+            gsap.to(toast, { top: 30, opacity: 1, scale: 1, duration: 0.6, ease: "back.out(1.7)" });
+            setTimeout(() => {
+                gsap.to(toast, { top: -100, opacity: 0, scale: 0.8, duration: 0.5, ease: "power2.in" });
+            }, 5000);
         }
-        // --- AKHIR LOGIKA JEDA ---
-    
-        // ... (sisa kode fetch POST dan success view tetap sama) ...
-        const loader = document.getElementById('loading-overlay');
-        const loadText = document.getElementById('load-text');
-        loadText.innerText = "MENGIRIM " + s + "...";
-        loader.style.display = 'flex';
-    
-        const waktuAbsen = clock();
-    
-        try {
-            await fetch(URL_APPS, {
-                method: 'POST', 
-                mode: 'no-cors', 
-                body: JSON.stringify({
-                    nama: n, 
-                    status: s,
-                    foto: document.getElementById('p').src
-                })
+
+        function showIsland(title, text, iconColor = "bg-sky-500") {
+            const toast = document.getElementById('toast');
+            document.getElementById('toastTitle').innerText = title;
+            document.getElementById('toastMsg').innerText = text;
+            document.getElementById('toastIcon').className = `w-8 h-8 rounded-full flex items-center justify-center ${iconColor} text-white shadow-lg text-[10px]`;
+            
+            gsap.to(toast, { top: 30, opacity: 1, scale: 1, duration: 0.6, ease: "back.out(1.7)" });
+            setTimeout(() => {
+                gsap.to(toast, { top: -100, opacity: 0, scale: 0.8, duration: 0.5 });
+            }, 3000);
+        }
+
+        function render() {
+            const ym = document.getElementById('monthPick').value;
+            const [year, month] = ym.split('-').map(Number);
+            const daysInMonth = new Date(year, month, 0).getDate();
+            const todayStr = new Date().toLocaleDateString('en-CA');
+            
+            const listJ = document.getElementById('tab-jadwal');
+            const listR = document.getElementById('tab-rekap');
+            const listS = document.getElementById('listNamaSheet');
+            
+            listJ.innerHTML = ''; listR.innerHTML = ''; listS.innerHTML = '';
+            let offCount = 0;
+
+            for (let d = 1; d <= daysInMonth; d++) {
+                const dateIso = `${year}-${String(month).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+                const isToday = dateIso === todayStr;
+                
+                const row = db.jadwal.find(r => r[0] && new Date(r[0]).toLocaleDateString('en-CA') === dateIso);
+                let names = (row && row[2] && String(row[2]) !== "null") ? String(row[2]).split(',').map(n => n.trim()).filter(n => n) : [];
+                if(isToday) offCount = names.length;
+
+                let namesHtml = names.map(n => `
+                    <div class="name-tag">
+                        <span class="font-bold text-[10px] uppercase truncate">${n}</span>
+                        <button onclick="batalOff('${n}', '${dateIso}')" class="text-emerald-500 active:scale-75 transition-all"><i class="fa-solid fa-circle-check"></i></button>
+                    </div>
+                `).join('');
+
+                listJ.innerHTML += `
+                    <div class="glass p-4 flex gap-4 items-center ${isToday ? 'ring-2 ring-sky-500 scale-[1.02] shadow-xl' : ''}">
+                        <div class="date-badge ${isToday ? 'is-today-badge' : ''}">
+                            <span class="text-[9px] font-black uppercase opacity-50">${new Date(dateIso).toLocaleDateString('id-ID',{weekday:'short'})}</span>
+                            <span class="text-xl font-[900]">${d}</span>
+                        </div>
+                        <div class="names-grid">
+                            ${names.length > 0 ? namesHtml : '<p class="text-[10px] font-bold opacity-20 uppercase tracking-[2px] col-span-2 text-center py-2">Tugas Penuh</p>'}
+                        </div>
+                    </div>`;
+            }
+
+            db.kurir.forEach(n => {
+                listS.innerHTML += `<div onclick="selectNama('${n}')" class="p-5 bg-[var(--inner-card)] rounded-2xl font-bold uppercase flex justify-between items-center active:scale-95 transition-all">${n} <i class="fa-solid fa-plus-circle text-sky-500"></i></div>`;
+                
+                const total = db.jadwal.filter(r => {
+                    if (!r[0] || !r[2]) return false;
+                    const rd = new Date(r[0]);
+                    const rdMonth = `${rd.getFullYear()}-${String(rd.getMonth() + 1).padStart(2, '0')}`;
+                    return rdMonth === ym && String(r[2]).toUpperCase().split(',').map(x => x.trim()).includes(n.toUpperCase().trim());
+                }).length;
+
+                listR.innerHTML += `
+                    <div class="glass p-5 flex items-center justify-between">
+                        <div class="flex items-center gap-4">
+                            <div class="w-10 h-10 rounded-xl bg-sky-500 text-white flex items-center justify-center font-black">${n.charAt(0)}</div>
+                            <span class="font-bold uppercase text-sm">${n}</span>
+                        </div>
+                        <div class="px-4 py-2 bg-sky-500/10 rounded-full font-black text-sky-500 text-xs">${total} OFF</div>
+                    </div>`;
             });
-    
-            if (s === "MASUK") {
-                localStorage.setItem('last_absen_masuk_' + n, SEKARANG.toString());
-            }
-    
-            loader.style.display = 'none';
-            document.getElementById('res-nama').innerText = n + " (" + s + ")";
-            document.getElementById('res-waktu').innerText = waktuAbsen;
-            document.getElementById('success-view').style.display = 'flex';
-    
-        } catch(e) {
-            loader.style.display = 'none';
-            alert("Gagal mengirim data!");
+
+            document.getElementById('statKurir').innerText = db.kurir.length;
+            document.getElementById('statOff').innerText = offCount;
         }
-    }
-    function getDist(lat1, lon1, lat2, lon2) {
-        const R = 6371000, p = Math.PI/180;
-        const a = 0.5 - Math.cos((lat2-lat1)*p)/2 + Math.cos(lat1*p)*Math.cos(lat2*p)*(1-Math.cos((lon2-lon1)*p))/2;
-        return R * 2 * Math.asin(Math.sqrt(a));
-    }
-    
-    function saveName() { localStorage.setItem('user_nama_v13', document.getElementById('selKurir').value); }
-    
-    init();
-    clock();
-</script>
+
+        async function batalOff(nama, tgl) {
+            if(!confirm(`Konfirmasi masuk kerja untuk ${nama}?`)) return;
+            showIsland("Syncing", "Membatalkan jadwal off...");
+            await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: "cancelOff", nama, tgl }) });
+            location.reload();
+        }
+
+        function switchTab(id, el) {
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            document.getElementById('tab-' + id).classList.add('active');
+            if(el.classList.contains('nav-item')) el.classList.add('active');
+        }
+
+        function selectType(val, el) {
+            selectedJenis = val;
+            document.querySelectorAll('.type-card').forEach(c => c.classList.remove('selected'));
+            el.classList.add('selected');
+        }
+
+        function openSheet() { 
+            document.getElementById('sheetNama').style.display = 'flex';
+            setTimeout(() => { document.querySelector('.sheet-content').classList.remove('translate-y-full'); }, 10);
+        }
+        function closeSheet() { 
+            document.querySelector('.sheet-content').classList.add('translate-y-full');
+            setTimeout(() => { document.getElementById('sheetNama').style.display = 'none'; }, 500);
+        }
+        function selectNama(n) { 
+            selectedNama = n; 
+            document.getElementById('selectedNamaDisplay').innerText = n; 
+            document.getElementById('selectedNamaDisplay').classList.remove('opacity-40');
+            closeSheet(); 
+        }
+
+        function openConfirm() {
+            if(!selectedNama || !document.getElementById('pTgl').value) return showIsland("Warning", "Data belum lengkap!", "bg-orange-500");
+            document.getElementById('confirmModal').style.display = 'flex';
+            gsap.to("#confirmBox", { scale: 1, opacity: 1, duration: 0.4, ease: "back.out" });
+        }
+        function closeConfirm() {
+            gsap.to("#confirmBox", { scale: 0.9, opacity: 0, duration: 0.2, onComplete: () => { document.getElementById('confirmModal').style.display = 'none'; }});
+        }
+
+        async function processSubmit() {
+            closeConfirm();
+            showIsland("Sending", "Memproses pengajuan...");
+            const data = { action: "submit", nama: selectedNama, jenis: selectedJenis, tgl: document.getElementById('pTgl').value, ket: document.getElementById('pKet').value };
+            await fetch(API_URL, { method: 'POST', body: JSON.stringify(data) });
+            location.reload();
+        }
+    </script>
 </body>
 </html>
