@@ -10,8 +10,8 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <style>
     :root {
-      --primary: #00CAFF;
-      --primary-light: #00CAFF;
+      --primary: #0080f7;
+      --primary-light: #0080f7;
       --primary-dark: #0b4870;
       --secondary: #4a6fa5;
       --text-primary: #0b3b5a;
@@ -1694,10 +1694,10 @@
           <thead>
             <tr>
               <th>Tanggal</th>
-              <th>Jumlah Nota</th>
-              <th>Total Pendapatan</th>
-              <th>Rata-rata per Nota</th>
-              <th>Kurir Aktif</th>
+              <th>Total Nota</th>
+              <th>Admin</th> <th>OL</th>    <th>Pendapatan</th>
+              <th>Rata-rata</th>
+              <th>Kurir</th>
             </tr>
           </thead>
           <tbody id="reportDetails"></tbody>
@@ -3003,89 +3003,105 @@
       generateReport();
     }
     el('btnGenerateReport').addEventListener('click', generateReport);
-
     async function generateReport() {
-      const month = el('reportMonth').value;
-      const kurirFilter = el('reportKurir').value;
-      if (!month) return alert('Pilih bulan terlebih dahulu');
-      
-      try {
-        const [notaSnap, kurirSnap] = await Promise.all([get(ref(db, 'nota')), get(ref(db, 'kurir'))]);
-        if (!notaSnap.exists()) {
-          el('reportSummary').innerHTML = '';
-          el('reportDetails').innerHTML = '<tr><td colspan="5" class="small">Tidak ada data</td></tr>';
-          return;
-        }
-
-        const activeKurirUsernames = new Set();
-        if (kurirSnap.exists()) {
-            Object.values(kurirSnap.val()).forEach(kurir => {
-                if (kurir.enabled) {
-                    activeKurirUsernames.add(kurir.username);
-                }
-            });
-        }
-
-        let allNota = [];
-        const notaData = notaSnap.val();
-        Object.keys(notaData).forEach(kurirName => {
-            if (!kurirFilter || kurirName === kurirFilter) {
-                Object.values(notaData[kurirName]).forEach(nota => {
-                    if (nota.createdAt && nota.createdAt.startsWith(month)) {
-                        allNota.push({ kurir: kurirName, ...nota });
-                    }
+        const month = el('reportMonth').value;
+        const kurirFilter = el('reportKurir').value;
+        if (!month) return alert('Pilih bulan terlebih dahulu');
+        
+        try {
+            const [notaSnap, kurirSnap] = await Promise.all([get(ref(db, 'nota')), get(ref(db, 'kurir'))]);
+            if (!notaSnap.exists()) {
+                el('reportSummary').innerHTML = '';
+                el('reportDetails').innerHTML = '<tr><td colspan="7" class="small">Tidak ada data</td></tr>';
+                return;
+            }
+    
+            const activeKurirUsernames = new Set();
+            if (kurirSnap.exists()) {
+                Object.values(kurirSnap.val()).forEach(kurir => {
+                    if (kurir.enabled) activeKurirUsernames.add(kurir.username);
                 });
             }
-        });
-
-        const byDate = {};
-        const totalKurirAktifDiLaporan = new Set();
-        let totalPendapatan = 0;
-
-        allNota.forEach(nota => {
-            const date = nota.createdAt.slice(0, 10);
-            if (!byDate[date]) {
-              byDate[date] = { count: 0, total: 0, kurir: new Set() };
-            }
-            byDate[date].count++;
+    
+            let allNota = [];
+            const notaData = notaSnap.val();
+            Object.keys(notaData).forEach(kurirName => {
+                if (!kurirFilter || kurirName === kurirFilter) {
+                    Object.values(notaData[kurirName]).forEach(nota => {
+                        if (nota.createdAt && nota.createdAt.startsWith(month)) {
+                            allNota.push({ kurir: kurirName, ...nota });
+                        }
+                    });
+                }
+            });
+    
+            const byDate = {};
+            const totalKurirAktifDiLaporan = new Set();
+            let totalPendapatan = 0;
+            let totalAdminGlobal = 0;
+            let totalOLGlobal = 0;
+    
+            allNota.forEach(nota => {
+                const date = nota.createdAt.slice(0, 10);
+                
+                // DISINKRONKAN: Menggunakan statusOrder seperti di loadAllNota
+                const statusStr = (nota.statusOrder || 'Admin').toUpperCase();
+    
+                if (!byDate[date]) {
+                    byDate[date] = { count: 0, total: 0, kurir: new Set(), admin: 0, ol: 0 };
+                }
+                
+                byDate[date].count++;
+                
+                // Logika hitung: Jika mengandung kata 'OL' masuk kategori OL, jika tidak masuk Admin
+                if (statusStr.includes('OL')) {
+                    byDate[date].ol++;
+                    totalOLGlobal++;
+                } else {
+                    byDate[date].admin++;
+                    totalAdminGlobal++;
+                }
+                
+                const pendapatanNota = calculatePendapatanNota(nota);
+                byDate[date].total += pendapatanNota;
+                totalPendapatan += pendapatanNota;
+    
+                if (activeKurirUsernames.has(nota.kurir)) {
+                    byDate[date].kurir.add(nota.kurir);
+                    totalKurirAktifDiLaporan.add(nota.kurir);
+                }
+            });
             
-            const pendapatanNota = calculatePendapatanNota(nota);
-            byDate[date].total += pendapatanNota;
-            totalPendapatan += pendapatanNota;
-
-            if (activeKurirUsernames.has(nota.kurir)) {
-                byDate[date].kurir.add(nota.kurir);
-                totalKurirAktifDiLaporan.add(nota.kurir);
-            }
-        });
-        
-        const totalNota = allNota.length;
-        
-        el('reportSummary').innerHTML = `
-          <div class="card"><h4>Total Nota</h4><div style="font-size:24px;font-weight:800;">${totalNota}</div></div>
-          <div class="card"><h4>Total Pendapatan</h4><div style="font-size:24px;font-weight:800;color:var(--success)">${formatRp(totalPendapatan)}</div></div>
-          <div class="card"><h4>Rata-rata Pendapatan/Nota</h4><div style="font-size:24px;font-weight:800;">${formatRp(totalNota > 0 ? totalPendapatan / totalNota : 0)}</div></div>
-          <div class="card"><h4>Kurir Aktif</h4><div style="font-size:24px;font-weight:800;color:var(--secondary)">${totalKurirAktifDiLaporan.size}</div></div>
-        `;
-        
-        el('reportDetails').innerHTML = Object.keys(byDate).sort().map(date => {
-            const data = byDate[date];
-            return `
-            <tr>
-              <td>${new Date(date).toLocaleDateString('id-ID')}</td>
-              <td>${data.count}</td>
-              <td>${formatRp(data.total)}</td>
-              <td>${formatRp(data.count > 0 ? data.total / data.count : 0)}</td>
-              <td>${data.kurir.size}</td>
-            </tr>`;
-        }).join('') || '<tr><td colspan="5" class="small">Tidak ada data</td></tr>';
-        
-      } catch (error) {
-        console.error("Error generating report:", error);
-        alert('Gagal membuat laporan');
-      }
+            const totalNota = allNota.length;
+            
+            // Render Summary
+            el('reportSummary').innerHTML = `
+              <div class="card"><h4>Total Nota</h4><div style="font-size:24px;font-weight:800;">${totalNota}</div><small>Admin: ${totalAdminGlobal} | OL: ${totalOLGlobal}</small></div>
+              <div class="card"><h4>Total Pendapatan</h4><div style="font-size:24px;font-weight:800;color:var(--success)">${formatRp(totalPendapatan)}</div></div>
+              <div class="card"><h4>Rata-rata/Nota</h4><div style="font-size:24px;font-weight:800;">${formatRp(totalNota > 0 ? totalPendapatan / totalNota : 0)}</div></div>
+              <div class="card"><h4>Kurir Aktif</h4><div style="font-size:24px;font-weight:800;color:var(--secondary)">${totalKurirAktifDiLaporan.size}</div></div>
+            `;
+            
+            // Render Tabel (7 Kolom)
+            el('reportDetails').innerHTML = Object.keys(byDate).sort().map(date => {
+                const data = byDate[date];
+                return `
+                <tr>
+                  <td>${new Date(date).toLocaleDateString('id-ID')}</td>
+                  <td>${data.count}</td>
+                  <td style="color:#0080f7; font-weight:bold">${data.admin}</td>
+                  <td style="color:#f78000; font-weight:bold">${data.ol}</td>
+                  <td>${formatRp(data.total)}</td>
+                  <td>${formatRp(data.count > 0 ? data.total / data.count : 0)}</td>
+                  <td>${data.kurir.size}</td>
+                </tr>`;
+            }).join('') || '<tr><td colspan="7" class="small">Tidak ada data</td></tr>';
+            
+        } catch (error) {
+            console.error("Error generating report:", error);
+            alert('Gagal membuat laporan');
+        }
     }
-
     async function loadAdminSettings() {
       try {
         const adminSnap = await get(ref(db, 'admins'));
