@@ -1163,6 +1163,13 @@
         font-weight: bold;
         display: inline-block;
     }
+    input[type="search"]#trxLogSearchInput {
+        padding: 8px 12px;
+        border-radius: 10px;
+        border: 1.5px solid var(--border);
+        background: #f8fbff;
+        font-size: 14px;
+    }
   </style>
 </head>
 <body>
@@ -1616,6 +1623,10 @@
                 <select id="trxLogKurirFilter" class="form-control" style="width: auto; display: inline-block;">
                     <option value="">Semua Kurir</option>
                 </select>
+                <div style="flex-grow: 1; min-width: 200px;">
+                    <label>Cari Nama Mitra / Kurir:</label>
+                    <input type="search" id="trxLogSearchInput" placeholder="🔍 Ketik nama..." style="width: 100%;">
+                </div>
                 <button id="btnFilterTrxLog" class="btn secondary mini-btn">Filter</button>
             </div>
             <div style="overflow-x: auto;">
@@ -2061,13 +2072,19 @@
         const selectedMonth = trxLogMonthFilter.value; // Format: YYYY-MM
         const selectedDate = trxLogDateFilter.value; // <<< TAMBAH INI (Format: YYYY-MM-DD)
         const selectedKurirId = trxLogKurirFilter.value; // Kurir ID
+        const searchQuery = el('trxLogSearchInput').value.toLowerCase(); // Ambil input pencarian
 
         const filteredData = allTrxLogData.filter(log => {
             const monthMatch = !selectedMonth || log.monthYear === selectedMonth;
             const dateMatch = !selectedDate || log.dateOnly === selectedDate; // KONDISI FILTER INI AKAN BERJALAN
             const kurirMatch = !selectedKurirId || log.kurirId === selectedKurirId;
-            return monthMatch && kurirMatch && dateMatch; // Gabungan ketiga filter
-        });
+    // Logika Pencarian: Cek apakah nama mitra atau nama kurir mengandung teks yang dicari
+            const nameMatch = !searchQuery || 
+                             log.mitraName.toLowerCase().includes(searchQuery) || 
+                             log.kurirName.toLowerCase().includes(searchQuery);
+    
+            return monthMatch && dateMatch && kurirMatch && nameMatch;
+        });
 
         if (filteredData.length === 0) {
             trxMitraLogList.innerHTML = `<tr><td colspan="4" style="text-align: center; padding: 20px;">Tidak ada transaksi mitra yang ditemukan untuk filter ini.</td></tr>`;
@@ -2099,6 +2116,7 @@
         trxMitraLogList.innerHTML = html;
         
     }
+    el('trxLogSearchInput').addEventListener('input', displayFilteredTrxLog);
     window.deleteMitraTrxLog = async (logId, trxCount, mitraId, selectedMonth, namaMitra, namaKurir) => {
         
         // --- PERBAIKAN PESAN KONFIRMASI (CONFIRM) ---
