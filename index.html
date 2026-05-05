@@ -1550,6 +1550,7 @@
                 <thead>
                     <tr>
                         <th>Nama</th>
+                        <th>Kurir</th>
                         <th>Tanggal/Jam</th>
                         <th>Rating</th>
                         <th>Status</th>
@@ -3283,59 +3284,89 @@
     });
 
     async function loadTestimoniData() {
+        const listElement = el('testimoniList');
+        
         try {
             const snapshot = await get(ref(db, 'testimoni'));
+            
+            // Cek jika data tidak ada
             if (!snapshot.exists()) {
-                el('testimoniList').innerHTML = '<tr><td colspan="8" class="small">Belum ada testimoni</td></tr>';
+                listElement.innerHTML = `
+                    <tr>
+                        <td colspan="9" class="small" style="text-align:center; padding: 20px; color: var(--text-soft);">
+                            Belum ada testimoni baru untuk ditinjau
+                        </td>
+                    </tr>`;
                 return;
             }
+    
             const data = snapshot.val();
             const testimoniArray = Object.keys(data).map(key => ({ id: key, ...data[key] }));
-            testimoniArray.sort((a, b) => b.timestamp - a.timestamp); 
+            
+            // Sorting: Terbaru di atas
+            testimoniArray.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0)); 
     
             const html = testimoniArray.map(item => {
                 const isPublished = item.isPublished === true;
                 
-                // --- LOGIKA BARU UNTUK FORMAT TANGGAL/JAM ---
+                // Format Tanggal yang lebih bersih
                 const tanggalWaktu = item.timestamp 
                     ? new Date(item.timestamp).toLocaleString('id-ID', { 
-                          year: 'numeric', 
+                          day: 'numeric', 
                           month: 'short', 
-                          day: 'numeric',
-                          hour: '2-digit',     
-                          minute: '2-digit'    
+                          year: 'numeric',
+                          hour: '2-digit', 
+                          minute: '2-digit' 
                       }) 
                     : '-';
-                // ---------------------------------------------
+    
+                // Render Bintang Aman (Cegah error jika rating undefined)
+                const stars = item.rating ? '⭐'.repeat(item.rating) : 'No Rating';
     
                 return `
                     <tr>
                         <td>${item.fullname || '-'}</td>
-                        <td style="white-space: nowrap;">${tanggalWaktu}</td> <td>${'⭐'.repeat(item.rating)}</td>
+                        <td style="font-weight:bold; color:var(--primary);">${item.courierName || item.courier || '-'}</td>
+                        <td style="white-space: nowrap; font-size: 0.85rem;">${tanggalWaktu}</td>
+                        <td style="letter-spacing: 2px;">${stars}</td>
                         <td>
                             <span class="status-badge ${isPublished ? 'status-published' : 'status-inactive'}">
-                                ${isPublished ? 'Ditampilkan' : 'Disembunyikan'}
+                                ${isPublished ? 'Ditampilkan' : 'Menunggu'}
                             </span>
                         </td>
                         <td>${item.speed || '-'}</td>
-                        <td>${item.courier || '-'}</td>
-                        <td style="white-space: normal; min-width: 250px;">${item.comments || '-'}</td>
+                        <td>${item.attitude || '-'}</td>
+                        <td style="white-space: normal; min-width: 250px; font-size: 0.9rem; line-height: 1.4;">
+                            ${item.comments || '<em style="color:var(--text-soft);">Tidak ada komentar</em>'}
+                        </td>
                         <td>
-                            <div class="action-group"> <button class="btn ${isPublished ? 'secondary' : 'success'} mini-btn" onclick="window.app.toggleTestimoniStatus('${item.id}', ${!isPublished})">
+                            <div class="action-group" style="display: flex; gap: 5px; justify-content: center;">
+                                <button class="btn ${isPublished ? 'secondary' : 'success'} mini-btn" 
+                                    onclick="window.app.toggleTestimoniStatus('${item.id}', ${!isPublished})"
+                                    title="${isPublished ? 'Sembunyikan dari Slider' : 'Tampilkan di Slider'}">
                                     ${isPublished ? 'Sembunyikan' : 'Tampilkan'}
                                 </button>
-                                <button class="btn danger mini-btn" onclick="window.app.deleteTestimoni('${item.id}')">
+                                <button class="btn danger mini-btn" 
+                                    onclick="window.app.deleteTestimoni('${item.id}')"
+                                    title="Hapus Permanen">
                                     Hapus
                                 </button>
                             </div>
                         </td>
+                    </tr>
                 `;
             }).join('');
-            el('testimoniList').innerHTML = html;
+    
+            listElement.innerHTML = html;
+    
         } catch (error) {
-            console.error("Error loading testimoni:", error);
-            // Ubah colspan menjadi 8 karena sekarang ada 8 kolom di tabel
-            el('testimoniList').innerHTML = '<tr><td colspan="8" class="small error">Gagal memuat data</td></tr>';
+            console.error("Error loading data:", error);
+            listElement.innerHTML = `
+                <tr>
+                    <td colspan="9" class="small error" style="text-align:center; color: red; padding: 20px;">
+                        Gagal memuat data. Silakan refresh halaman.
+                    </td>
+                </tr>`;
         }
     }
     window.app.deleteTestimoni = async (testimoniId) => {
