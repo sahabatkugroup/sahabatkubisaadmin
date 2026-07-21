@@ -2173,7 +2173,7 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebas
             document.getElementById('title-form-mitra').innerText = "Tambah / Edit Data Mitra";
         }
         // ================= MODUL PETUGAS KEMITRAAN ================= //
-        const KEMITRAAN_UPLOAD_ENDPOINT = "https://script.google.com/macros/s/AKfycby5NRakPHf3jhcbzc35y06MOe36bkdLBFxm00Kd56a4vMtxaraKi8HzMOsvnN8Nqnkj/exec";
+        const KEMITRAAN_UPLOAD_ENDPOINT = "https://script.google.com/macros/s/AKfycbxtQv9yXAztmZ9Yc9XtC4q4vx1gORo2De_2ppJntsaWPh7r7w7FjkOLjBNZ6yAoSGmf/exec";
         const KEMITRAAN_FOLDER = {
             fotoLokasi: "1o3___2NUGAxvEHfTKKRyRyDo9qxZMVoXEs1Bf6UtB4kUDBfvFgViB8RtS0Yz1HGexXEej6Of",
             fotoDokumentasi: "1QHG3oZLU2k5_Q1rxwgJ-iv7GMCpdm4aawxZbm_7E6hGMGBHREGjP3NuuxJSG2hKW5TkF9X7I",
